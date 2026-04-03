@@ -630,16 +630,16 @@
 
     <!-- Login form -->
     <div id="login-form">
-      <div class="field"><label>Email</label><input id="l-email" type="email" placeholder="you@example.com"/></div>
-      <div class="field"><label>Password</label><input id="l-pass" type="password" placeholder="••••••••"/></div>
+      <div class="field"><label>Email</label><input id="l-email" type="email" placeholder="you@example.com" autocomplete="off"/></div>
+      <div class="field"><label>Password</label><input id="l-pass" type="password" placeholder="••••••••" autocomplete="new-password"/></div>
       <button class="btn-primary" onclick="handleLogin()">Sign in</button>
     </div>
 
     <!-- Register form -->
     <div id="register-form" style="display:none">
-      <div class="field"><label>Name</label><input id="r-name" type="text" placeholder="Your name"/></div>
-      <div class="field"><label>Email</label><input id="r-email" type="email" placeholder="you@example.com"/></div>
-      <div class="field"><label>Password</label><input id="r-pass" type="password" placeholder="Min 6 characters"/></div>
+      <div class="field"><label>Name</label><input id="r-name" type="text" placeholder="Your name" autocomplete="off"/></div>
+      <div class="field"><label>Email</label><input id="r-email" type="email" placeholder="you@example.com" autocomplete="off"/></div>
+      <div class="field"><label>Password</label><input id="r-pass" type="password" placeholder="Min 6 characters" autocomplete="new-password"/></div>
       <div class="field">
         <label>Role</label>
         <select id="r-role">
@@ -815,7 +815,7 @@
     <div class="field"><label>Notes (optional)</label><input id="m-notes" type="text" placeholder="Add a note…"/></div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="closeModal('modal-add')">Cancel</button>
-      <button class="btn-submit" onclick="submitRecord()">Create</button>
+      <button id="submit-btn" class="btn-submit" onclick="submitRecord()">Create</button>
     </div>
   </div>
 </div>
@@ -829,7 +829,7 @@ let token = null;
 let currentUser = null;
 let recordsPage = 1;
 let recordsTotal = 0;
-const LIMIT = 15;
+const LIMIT = 10;
 let debounceTimer;
 
 // ── HELPERS ───────────────────────────────────────────────
@@ -1082,7 +1082,12 @@ const loadRecords = async () => {
           <td><span class="badge ${r.type}">${r.type}</span></td>
           <td><span class="amount ${r.type}">${r.type==='income'?'+':'-'}${fmt(r.amount)}</span></td>
           <td style="color:var(--muted);font-size:13px">${r.notes || '—'}</td>
-          <td>${isAdmin ? `<button class="btn-icon del" onclick="deleteRecord('${r.id}')">Delete</button>` : ''}</td>
+          <td>
+  ${isAdmin ? `
+    <button class="btn-icon" onclick='editRecord(${JSON.stringify(r)})'>Update</button>
+    <button class="btn-icon del" onclick="deleteRecord('${r.id}')">Delete</button>
+  ` : ''}
+</td>
         </tr>`).join('')
       : '<tr><td colspan="6" class="empty">No records found</td></tr>';
 
@@ -1098,11 +1103,36 @@ const debounceLoadRecords = () => {
   debounceTimer = setTimeout(loadRecords, 350);
 };
 
+let editingId = null;
+
+const editRecord = (r) => {
+  editingId = r.id;
+  document.querySelector('.modal-title').textContent = 'Edit Record';
+  document.getElementById('submit-btn').textContent = 'Update';
+  document.getElementById('m-amount').value = r.amount;
+  document.getElementById('m-type').value = r.type;
+  document.getElementById('m-category').value = r.category;
+  document.getElementById('m-date').value = r.date.split('T')[0];
+  document.getElementById('m-notes').value = r.notes || '';
+
+  document.getElementById('modal-add').classList.add('open');
+};
+
 const changePage = (dir) => { recordsPage += dir; loadRecords(); };
 
 // ── ADD RECORD MODAL ──────────────────────────────────────
-const openAddModal = () => {
+const openAddModal = () =>
+{
+  editingId = null;
+
+  document.querySelector('.modal-title').textContent = 'New Record';
+  document.getElementById('submit-btn').textContent = 'Create';
+  document.getElementById('m-amount').value = '';
+  document.getElementById('m-category').value = '';
+  document.getElementById('m-notes').value = '';
+  document.getElementById('m-type').value = 'income';
   document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
+
   document.getElementById('modal-add').classList.add('open');
 };
 
@@ -1118,13 +1148,26 @@ const submitRecord = async () => {
   };
 
   try {
-    await apiFetch('/records', { method: 'POST', body });
+    if (editingId) {
+      
+      await apiFetch('/records/' + editingId, { method: 'PATCH', body });
+      showToast('Record updated!');
+      editingId = null; 
+    } else {
+      
+      await apiFetch('/records', { method: 'POST', body });
+      showToast('Record created!');
+    }
+
     closeModal('modal-add');
-    showToast('Record created!');
     loadRecords();
     loadDashboard();
-  } catch (e) { showToast(e.message, 'error'); }
+
+  } catch (e) {
+    showToast(e.message, 'error');
+  }
 };
+
 
 const deleteRecord = async (id) => {
   if (!confirm('Soft-delete this record?')) return;
