@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinanceOS — Records</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <span class="brand-mark">F</span>
+      <span class="brand-name">FinanceOS</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a href="dashboard.html" class="nav-item" data-page="dashboard">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1 1 16 0A8 8 0 0 1 2 10zm8-3a1 1 0 0 0-1 1v2H7a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0v-2h2a1 1 0 1 0 0-2h-2V8a1 1 0 0 0-1-1z"/></svg>
+        Dashboard
+      </a>
+      <a href="records.html" class="nav-item active" data-page="records">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" clip-rule="evenodd"/></svg>
+        Records
+      </a>
+      <a href="users.html" class="nav-item admin-only" data-page="users">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm8 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-4.07 11c.046-.327.07-.66.07-1a6.97 6.97 0 0 0-1.5-4.33A5 5 0 0 1 19 16v1h-6.07zM6 11a5 5 0 0 1 5 5v1H1v-1a5 5 0 0 1 5-5z"/></svg>
+        Users
+      </a>
+    </nav>
+    <div class="sidebar__footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div>
+          <div class="user-name" id="sidebarUserName">Loading…</div>
+          <div class="user-role" id="sidebarUserRole">—</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn" title="Logout">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h6a1 1 0 1 0 0-2H4V5h5a1 1 0 1 0 0-2H3zm11.707 4.293a1 1 0 0 1 0 1.414L13.414 10l1.293 1.293a1 1 0 0 1-1.414 1.414l-2-2a1 1 0 0 1 0-1.414l2-2a1 1 0 0 1 1.414 0z" clip-rule="evenodd"/><path d="M13 10a1 1 0 0 1 1-1h3a1 1 0 1 1 0 2h-3a1 1 0 0 1-1-1z"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar__title">
+        <h1>Records</h1>
+      </div>
+      <div class="topbar__actions">
+        <a class="btn btn--ghost" id="exportCsvBtn" href="#">↓ Export CSV</a>
+        <button class="btn btn--primary admin-only" id="addRecordBtn">+ Add Record</button>
+      </div>
+    </header>
+
+    <!-- Filters -->
+    <section class="filter-bar">
+      <input class="filter-input" type="text" id="searchInput" placeholder="Search notes, category…" />
+      <select class="filter-select" id="typeFilter">
+        <option value="">All types</option>
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <input class="filter-input filter-input--date" type="date" id="dateFromFilter" />
+      <input class="filter-input filter-input--date" type="date" id="dateToFilter" />
+      <button class="btn btn--ghost" id="applyFilterBtn">Apply</button>
+      <button class="btn btn--ghost btn--dim" id="clearFilterBtn">Clear</button>
+    </section>
+
+    <!-- Table -->
+    <section class="records-section">
+      <div class="activity-table-wrapper">
+        <table class="activity-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Notes</th>
+              <th>Type</th>
+              <th class="text-right">Amount</th>
+              <th class="admin-only text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTableBody">
+            <tr><td colspan="6" class="loading-row">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </section>
+  </main>
+
+  <!-- Add / Edit Record Modal -->
+  <div class="modal-overlay" id="recordModal">
+    <div class="modal">
+      <div class="modal__header">
+        <h3 id="modalTitle">Add Record</h3>
+        <button class="modal__close" id="modalClose">✕</button>
+      </div>
+      <div class="modal__body">
+        <input type="hidden" id="recordId" />
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input type="number" id="fieldAmount" min="0.01" step="0.01" placeholder="0.00" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type</label>
+            <select id="fieldType">
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <input type="text" id="fieldCategory" placeholder="e.g. Salary" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="fieldDate" />
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <input type="text" id="fieldNotes" placeholder="Optional notes" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="fieldDescription" rows="2" placeholder="Optional description"></textarea>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--ghost" id="modalCancelBtn">Cancel</button>
+        <button class="btn btn--primary" id="modalSaveBtn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="records.js"></script>
+</body>
+</html>
