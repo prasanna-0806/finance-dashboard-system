@@ -107,20 +107,19 @@ async function seed() {
     await client.query('BEGIN');
 
     // Upsert users
-    const insertedAdminId = await (async () => {
-      for (const u of users) {
-        const hash = await bcrypt.hash(u.password, HASH_ROUNDS);
-        const res = await client.query(
-          `INSERT INTO users (name, email, password, role, is_active)
+    let insertedAdminId;
+    for (const u of users) {
+      const hash = await bcrypt.hash(u.password, HASH_ROUNDS);
+      const res = await client.query(
+        `INSERT INTO users (name, email, password, role, is_active)
 VALUES ($1, $2, $3, $4, $5)
-ON CONFLICT (email) DO UPDATE SET role = EXCLUDED.role, is_active = EXCLUDED.is_active
+ON CONFLICT (email) DO UPDATE SET password = EXCLUDED.password, role = EXCLUDED.role, is_active = EXCLUDED.is_active
            RETURNING id, role`,
-          [u.name, u.email, hash, u.role, u.is_active]
-        );
-        console.log(`  ✔ User: ${u.email} (role ${u.role})`);
-        if (u.role === 'admin') return res.rows[0].id;
-      }
-    })();
+        [u.name, u.email, hash, u.role, u.is_active]
+      );
+      console.log(`  ✔ User: ${u.email} (role ${u.role})`);
+      if (u.role === 'admin') insertedAdminId = res.rows[0].id;
+    }
 
     // Seed financial records
     const records = generateRecords(insertedAdminId);

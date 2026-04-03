@@ -1,5 +1,3 @@
-
-
 const API = 'http://localhost:3000';
 
 // ── Token helpers ────────────────────────────────────────────────
@@ -49,8 +47,23 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
+// FIX: DB/JWT returns role as a string ('admin', 'analyst', 'viewer'), not a number.
+// Old roleName() only handled numbers → always fell through to String(role).
+// Now handles both so the sidebar role label displays correctly.
 function roleName(role) {
+  if (typeof role === 'string') return role;
   return { 1: 'viewer', 2: 'analyst', 3: 'admin' }[role] || String(role);
+}
+
+// FIX: isAdmin() was called in initSidebar() but was never defined anywhere.
+// This caused a ReferenceError that crashed every page after login —
+// the sidebar never rendered, logout never wired up, admin nav never hidden.
+function isAdmin(role) {
+  return role === 'admin' || role === 3;
+}
+
+function isAnalystOrAbove(role) {
+  return role === 'admin' || role === 'analyst' || role >= 2;
 }
 
 // ── Auth guard ───────────────────────────────────────────────────
@@ -77,6 +90,11 @@ function initSidebar() {
   // Hide admin-only elements for non-admins
   if (!isAdmin(user.role)) {
     document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+  }
+
+  // Hide analyst-only elements for viewers
+  if (!isAnalystOrAbove(user.role)) {
+    document.querySelectorAll('.analyst-only').forEach(el => el.classList.add('hidden'));
   }
 
   const logoutBtn = document.getElementById('logoutBtn');

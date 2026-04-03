@@ -715,3 +715,57 @@ body:not(.login-page) {
 
 /* ── Utility ────────────────────────────────────────────────────── */
 .hidden { display: none !important; }
+
+/* ── Users page additions ───────────────────────────────────────── */
+
+/* Role badges for string-based roles (admin / analyst / viewer) */
+.badge--admin   { background: rgba(79,255,176,0.12);  color: var(--accent); }
+.badge--analyst { background: rgba(124,185,232,0.12); color: var(--balance); }
+.badge--viewer  { background: var(--bg-4);            color: var(--text-secondary); }
+
+/* Status dot indicator */
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.status-dot.active   { background: var(--income); }
+.status-dot.inactive { background: var(--text-dim); }
+
+/* ── Insights page ──────────────────────────────────────────────── */
+.cat-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.cat-breakdown--wide {
+  flex-direction: row;
+  gap: 32px;
+}
+
+.breakdown-col {
+  flex: 1;
+}
+
+.breakdown-col h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+}
+
+.cat-row { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+.cat-row__top { display: flex; justify-content: space-between; align-items: center; }
+.cat-row__name { font-size: 13px; color: var(--text-primary); }
+.cat-row__amt  { font-family: var(--font-mono); font-size: 13px; }
+.cat-row__track { height: 4px; background: var(--bg-4); border-radius: 2px; }
+.cat-row__fill  { height: 4px; border-radius: 2px; transition: width 0.5s ease; }
+
+.no-data { color: var(--text-dim); font-size: 13px; padding: 16px 0; }

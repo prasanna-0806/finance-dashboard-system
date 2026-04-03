@@ -19,18 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('applyFilterBtn').addEventListener('click', () => {
     currentPage = 1;
+    // FIX: toISODate() normalises whatever the date input gives us before storing —
+    // so even if the browser shows dd-mm-yyyy, we always store a valid YYYY-MM-DD or undefined.
     currentFilters = {
-      search:   document.getElementById('searchInput').value.trim()    || undefined,
-      type:     document.getElementById('typeFilter').value            || undefined,
-      dateFrom: document.getElementById('dateFromFilter').value        || undefined,
-      dateTo:   document.getElementById('dateToFilter').value          || undefined,
+      search:   document.getElementById('searchInput').value.trim()              || undefined,
+      type:     document.getElementById('typeFilter').value                      || undefined,
+      dateFrom: toISODate(document.getElementById('dateFromFilter').value)       || undefined,
+      dateTo:   toISODate(document.getElementById('dateToFilter').value)         || undefined,
     };
     loadRecords();
   });
 
   document.getElementById('clearFilterBtn').addEventListener('click', () => {
-    document.getElementById('searchInput').value   = '';
-    document.getElementById('typeFilter').value    = '';
+    document.getElementById('searchInput').value    = '';
+    document.getElementById('typeFilter').value     = '';
     document.getElementById('dateFromFilter').value = '';
     document.getElementById('dateToFilter').value   = '';
     currentPage = 1;
@@ -61,8 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Modal — Admin only
-  if (user && user.role >= 3) {
+  // FIX: role from DB/JWT is a string ('admin'), not a number (3).
+  // Old code: user.role >= 3  → always false for string 'admin'
+  // Fixed:    isAdmin(user.role) → works for both string and numeric roles
+  if (user && isAdmin(user.role)) {
     document.getElementById('addRecordBtn').addEventListener('click', () => openModal());
     document.getElementById('modalClose').addEventListener('click', closeModal);
     document.getElementById('modalCancelBtn').addEventListener('click', closeModal);
@@ -73,12 +77,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// FIX: converts any date string to YYYY-MM-DD, or returns null if invalid.
+// Prevents browser locale dates (dd-mm-yyyy) or placeholder strings from
+// being sent to the backend's isISO8601() validator, which rejects them with
+// a 422 → the frontend then shows "Failed to load records."
+function toISODate(val) {
+  if (!val || typeof val !== 'string') return null;
+  // Already ISO format YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(val)) return val;
+  // Try parsing anyway
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return null;
+  return d.toISOString().split('T')[0];
+}
+
 function buildParams(filters) {
   const p = new URLSearchParams();
   if (filters.search)   p.set('search', filters.search);
   if (filters.type)     p.set('type', filters.type);
-  if (filters.dateFrom) p.set('dateFrom', filters.dateFrom);
-  if (filters.dateTo)   p.set('dateTo', filters.dateTo);
+  // FIX: only append dates if they are valid ISO strings — never send placeholder or garbage
+  const from = toISODate(filters.dateFrom);
+  const to   = toISODate(filters.dateTo);
+  if (from) p.set('dateFrom', from);
+  if (to)   p.set('dateTo', to);
   return p;
 }
 
@@ -95,14 +116,17 @@ async function loadRecords() {
     renderTable(result.data);
     renderPagination(result.pagination);
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="6" class="loading-row">Failed to load records.</td></tr>';
+    // FIX: show the actual error from the server if available, not just a generic message
+    const msg = e?.data?.errors?.[0]?.msg || e?.data?.error || 'Failed to load records.';
+    tbody.innerHTML = `<tr><td colspan="6" class="loading-row">${msg}</td></tr>`;
   }
 }
 
 function renderTable(records) {
-  const tbody  = document.getElementById('recordsTableBody');
-  const user   = getUser();
-  const isAdmin = user && user.role >= 3;
+  const tbody   = document.getElementById('recordsTableBody');
+  const user    = getUser();
+  // FIX: same string-based role check here
+  const adminUser = user && isAdmin(user.role);
 
   if (!records || records.length === 0) {
     tbody.innerHTML = '<tr><td colspan="6" class="loading-row">No records found.</td></tr>';
@@ -116,9 +140,9 @@ function renderTable(records) {
       <td style="color:var(--text-secondary);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.notes || '—'}</td>
       <td><span class="badge badge--${r.type}">${r.type}</span></td>
       <td class="text-right amount--${r.type}">${formatINR(r.amount)}</td>
-      <td class="text-center admin-only ${isAdmin ? '' : 'hidden'}">
-        <button class="action-btn" onclick="editRecord(${r.id})">Edit</button>
-        <button class="action-btn action-btn--delete" onclick="deleteRecord(${r.id})">Delete</button>
+      <td class="text-center admin-only ${adminUser ? '' : 'hidden'}">
+        <button class="action-btn" onclick="editRecord('${r.id}')">Edit</button>
+        <button class="action-btn action-btn--delete" onclick="deleteRecord('${r.id}')">Delete</button>
       </td>
     </tr>
   `).join('');
@@ -126,7 +150,7 @@ function renderTable(records) {
 
 function renderPagination({ page, pages }) {
   const el = document.getElementById('pagination');
-  if (pages <= 1) { el.innerHTML = ''; return; }
+  if (!pages || pages <= 1) { el.innerHTML = ''; return; }
 
   let html = `<button class="page-btn" onclick="goPage(${page - 1})" ${page <= 1 ? 'disabled' : ''}>‹</button>`;
   for (let i = 1; i <= pages; i++) {
@@ -147,14 +171,15 @@ function goPage(p) {
 
 // ── Modal ────────────────────────────────────────────────────────
 function openModal(record = null) {
-  document.getElementById('modalTitle').textContent = record ? 'Edit Record' : 'Add Record';
-  document.getElementById('recordId').value         = record?.id || '';
-  document.getElementById('fieldAmount').value      = record?.amount || '';
-  document.getElementById('fieldType').value        = record?.type || 'income';
-  document.getElementById('fieldCategory').value    = record?.category || '';
-  document.getElementById('fieldDate').value        = record?.date ? record.date.split('T')[0] : '';
-  document.getElementById('fieldNotes').value       = record?.notes || '';
-  document.getElementById('fieldDescription').value = record?.description || '';
+  document.getElementById('modalTitle').textContent  = record ? 'Edit Record' : 'Add Record';
+  document.getElementById('recordId').value          = record?.id || '';
+  document.getElementById('fieldAmount').value       = record?.amount || '';
+  document.getElementById('fieldType').value         = record?.type || 'income';
+  document.getElementById('fieldCategory').value     = record?.category || '';
+  // FIX: was '' for new records — blank date fails isISO8601() validation on the backend.
+  // Default to today so the field is always pre-filled when adding a new record.
+  document.getElementById('fieldDate').value         = record?.date ? record.date.split('T')[0] : new Date().toISOString().split('T')[0];
+  document.getElementById('fieldNotes').value        = record?.notes || '';
   document.getElementById('recordModal').classList.add('open');
 }
 
@@ -183,9 +208,17 @@ async function saveRecord() {
     amount:      parseFloat(document.getElementById('fieldAmount').value),
     type:        document.getElementById('fieldType').value,
     category:    document.getElementById('fieldCategory').value.trim(),
-    date:        document.getElementById('fieldDate').value,
+    // FIX: browser date inputs can display in locale format (DD-MM-YYYY) but their
+    // .value is always YYYY-MM-DD internally. However if the date somehow arrives
+    // in a non-ISO format, parse and re-format it so the backend isISO8601() validator
+    // never rejects it with a 422 "Failed to create record" error.
+    date: (() => {
+      const raw = document.getElementById('fieldDate').value;
+      if (!raw) return '';
+      const d = new Date(raw);
+      return isNaN(d) ? raw : d.toISOString().split('T')[0];
+    })(),
     notes:       document.getElementById('fieldNotes').value.trim(),
-    description: document.getElementById('fieldDescription').value.trim(),
   };
 
   if (!body.amount || !body.category || !body.date) {

@@ -1,7 +1,4 @@
-// routes/records.js — replace your existing file with this
-// Adds: ?search= query param on GET /api/records
-//       GET /api/records/export  → downloads CSV
-
+// routes/records.js
 const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth');
@@ -22,6 +19,10 @@ const handleValidation = (req, res, next) => {
   next();
 };
 
+// FIX: The DB uses UUID primary keys (gen_random_uuid()), but the original routes
+// used param('id').isInt() which rejects every UUID with a 422 error.
+// Replaced with isUUID() on all /:id routes so GET, PATCH, DELETE actually work.
+
 /**
  * @swagger
  * /api/records/export:
@@ -30,30 +31,6 @@ const handleValidation = (req, res, next) => {
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: type
- *         schema: { type: string, enum: [income, expense] }
- *       - in: query
- *         name: category
- *         schema: { type: string }
- *       - in: query
- *         name: dateFrom
- *         schema: { type: string, format: date }
- *       - in: query
- *         name: dateTo
- *         schema: { type: string, format: date }
- *       - in: query
- *         name: search
- *         schema: { type: string }
- *         description: Search in notes, category, or description
- *     responses:
- *       200:
- *         description: CSV file download
- *         content:
- *           text/csv:
- *             schema:
- *               type: string
  */
 router.get(
   '/export',
@@ -81,32 +58,6 @@ router.get(
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: query
- *         name: type
- *         schema: { type: string, enum: [income, expense] }
- *       - in: query
- *         name: category
- *         schema: { type: string }
- *       - in: query
- *         name: dateFrom
- *         schema: { type: string, format: date }
- *       - in: query
- *         name: dateTo
- *         schema: { type: string, format: date }
- *       - in: query
- *         name: search
- *         schema: { type: string }
- *         description: Full-text search across notes, category, and description
- *       - in: query
- *         name: page
- *         schema: { type: integer, default: 1 }
- *       - in: query
- *         name: limit
- *         schema: { type: integer, default: 20 }
- *     responses:
- *       200:
- *         description: Paginated list of records
  */
 router.get(
   '/',
@@ -140,25 +91,16 @@ router.get(
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: integer }
- *     responses:
- *       200:
- *         description: Record found
- *       404:
- *         description: Record not found
  */
 router.get(
   '/:id',
   authenticate,
   requireRole(2),
-  [param('id').isInt(), handleValidation],
+  // FIX: was isInt() — UUIDs are not integers, causing all single-record fetches to 422
+  [param('id').isUUID(), handleValidation],
   async (req, res) => {
     try {
-      const record = await getRecordById(Number(req.params.id));
+      const record = await getRecordById(req.params.id);
       if (!record) return res.status(404).json({ error: 'Record not found' });
       res.json(record);
     } catch (err) {
@@ -175,23 +117,6 @@ router.get(
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [amount, type, category, date]
- *             properties:
- *               amount: { type: number }
- *               type: { type: string, enum: [income, expense] }
- *               category: { type: string }
- *               date: { type: string, format: date }
- *               notes: { type: string }
- *               description: { type: string }
- *     responses:
- *       201:
- *         description: Record created
  */
 router.post(
   '/',
@@ -224,35 +149,14 @@ router.post(
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: integer }
- *     requestBody:
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               amount: { type: number }
- *               type: { type: string, enum: [income, expense] }
- *               category: { type: string }
- *               date: { type: string, format: date }
- *               notes: { type: string }
- *               description: { type: string }
- *     responses:
- *       200:
- *         description: Record updated
- *       404:
- *         description: Record not found
  */
 router.patch(
   '/:id',
   authenticate,
   requireRole(3),
   [
-    param('id').isInt(),
+    // FIX: was isInt() — replaced with isUUID()
+    param('id').isUUID(),
     body('amount').optional().isFloat({ min: 0.01 }),
     body('type').optional().isIn(['income', 'expense']),
     body('category').optional().isString().trim().notEmpty(),
@@ -261,7 +165,7 @@ router.patch(
   ],
   async (req, res) => {
     try {
-      const record = await updateRecord(Number(req.params.id), req.body);
+      const record = await updateRecord(req.params.id, req.body);
       if (!record) return res.status(404).json({ error: 'Record not found' });
       res.json(record);
     } catch (err) {
@@ -278,25 +182,16 @@ router.patch(
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: integer }
- *     responses:
- *       200:
- *         description: Record deleted
- *       404:
- *         description: Record not found
  */
 router.delete(
   '/:id',
   authenticate,
   requireRole(3),
-  [param('id').isInt(), handleValidation],
+  // FIX: was isInt() — replaced with isUUID()
+  [param('id').isUUID(), handleValidation],
   async (req, res) => {
     try {
-      const result = await softDeleteRecord(Number(req.params.id));
+      const result = await softDeleteRecord(req.params.id);
       if (!result) return res.status(404).json({ error: 'Record not found' });
       res.json({ message: 'Record deleted', id: result.id });
     } catch (err) {

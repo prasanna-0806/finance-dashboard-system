@@ -9,9 +9,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadKPIs() {
   try {
     const summary = await apiFetch('/api/dashboard/summary');
-    document.getElementById('kpiIncome').textContent   = formatINR(summary.totalIncome   || 0);
-    document.getElementById('kpiExpenses').textContent = formatINR(summary.totalExpenses || 0);
-    document.getElementById('kpiBalance').textContent  = formatINR(summary.netBalance    || 0);
+    document.getElementById('kpiIncome').textContent   = formatINR(summary.total_income   || 0);
+    document.getElementById('kpiExpenses').textContent = formatINR(summary.total_expenses || 0);
+    document.getElementById('kpiBalance').textContent  = formatINR(summary.net_balance    || 0);
   } catch (e) {
     console.error('KPI load failed', e);
   }

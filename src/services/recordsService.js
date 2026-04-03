@@ -13,9 +13,8 @@ async function getRecords({ type, category, dateFrom, dateTo, page = 1, limit = 
   if (dateFrom) { conditions.push(`date >= $${i++}`); values.push(dateFrom); }
   if (dateTo) { conditions.push(`date <= $${i++}`); values.push(dateTo); }
 
-  // ── SEARCH: matches notes OR category (case-insensitive full-text)
   if (search) {
-    conditions.push(`(notes ILIKE $${i} OR category ILIKE $${i} OR description ILIKE $${i})`);
+    conditions.push(`(notes ILIKE $${i} OR category ILIKE $${i})`);
     values.push(`%${search}%`);
     i++;
   }
@@ -30,7 +29,8 @@ async function getRecords({ type, category, dateFrom, dateTo, page = 1, limit = 
   const total = parseInt(countResult.rows[0].count, 10);
 
   const result = await pool.query(
-    `SELECT * FROM financial_records ${where}
+    `SELECT id, amount, type, category, date, notes, created_by, created_at, updated_at
+     FROM financial_records ${where}
      ORDER BY date DESC, created_at DESC
      LIMIT $${i} OFFSET $${i + 1}`,
     [...values, limit, offset]
@@ -49,23 +49,23 @@ async function getRecords({ type, category, dateFrom, dateTo, page = 1, limit = 
 
 async function getRecordById(id) {
   const result = await pool.query(
-    'SELECT * FROM financial_records WHERE id = $1 AND deleted_at IS NULL',
+    'SELECT id, amount, type, category, date, notes, created_by, created_at, updated_at FROM financial_records WHERE id = $1 AND deleted_at IS NULL',
     [id]
   );
   return result.rows[0] || null;
 }
 
-async function createRecord({ amount, type, category, date, notes, description, created_by }) {
+async function createRecord({ amount, type, category, date, notes, created_by }) {
   const result = await pool.query(
-    `INSERT INTO financial_records (amount, type, category, date, notes, description, created_by)
-     VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
-    [amount, type, category, date, notes, description, created_by]
+    `INSERT INTO financial_records (amount, type, category, date, notes, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [amount, type, category, date, notes, created_by]
   );
   return result.rows[0];
 }
 
 async function updateRecord(id, fields) {
-  const allowed = ['amount', 'type', 'category', 'date', 'notes', 'description'];
+  const allowed = ['amount', 'type', 'category', 'date', 'notes'];
   const updates = [];
   const values = [];
   let i = 1;
@@ -114,13 +114,13 @@ async function getRecordsForExport({ type, category, dateFrom, dateTo, search } 
 
   const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const result = await pool.query(
-    `SELECT id, amount, type, category, date, notes, description, created_at
+    `SELECT id, amount, type, category, date, notes, created_at
      FROM financial_records ${where}
      ORDER BY date DESC`,
     values
   );
 
-  const header = 'id,amount,type,category,date,notes,description,created_at';
+  const header = 'id,amount,type,category,date,notes,created_at';
   const rows = result.rows.map(r =>
     [
       r.id,
@@ -129,7 +129,6 @@ async function getRecordsForExport({ type, category, dateFrom, dateTo, search } 
       `"${(r.category || '').replace(/"/g, '""')}"`,
       r.date ? r.date.toISOString().split('T')[0] : '',
       `"${(r.notes || '').replace(/"/g, '""')}"`,
-      `"${(r.description || '').replace(/"/g, '""')}"`,
       r.created_at ? r.created_at.toISOString() : '',
     ].join(',')
   );

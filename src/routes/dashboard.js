@@ -3,9 +3,10 @@ const { authenticate } = require('../middleware/auth');
 const { requireRole } = require('../middleware/roleGuard');
 const dashboardService = require('../services/dashboardService');
 
-// All dashboard routes require at least analyst role
-// Viewers, analysts and admins can all see the dashboard
-router.use(authenticate, requireRole('viewer'));
+// FIX: requireRole was called with the string 'viewer' here but with numbers (2, 3)
+// everywhere else in records.js. Pass numeric level 1 for viewer so roleGuard
+// handles it consistently across all routes.
+router.use(authenticate, requireRole(1));
 
 /**
  * @swagger
