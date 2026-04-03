@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const params = buildParams({ ...currentFilters });
       const qs = params.toString() ? '?' + params.toString() : '';
       const token = getToken();
-      const res = await fetch(`http://localhost:3000/api/records/export${qs}`, {
+      const res = await fetch(`https://finance-dashboard-system-5noe.onrender.com/api/records/export${qs}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Export failed');
