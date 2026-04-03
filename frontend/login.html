@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinanceOS — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+<body class="login-page">
+
+  <div class="login-bg">
+    <div class="login-grid-lines"></div>
+  </div>
+
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-brand">
+        <span class="brand-mark">F</span>
+        <span class="brand-name">FinanceOS</span>
+      </div>
+      <p class="login-subtitle">Sign in to your dashboard</p>
+
+      <div id="loginError" class="alert alert--error" style="display:none"></div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="you@finance.dev" autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <button class="btn btn--primary btn--full" id="loginBtn">Sign In</button>
+
+      <div class="login-hint">
+        <span>Demo accounts:</span>
+        <code>admin@finance.dev</code> · <code>analyst@finance.dev</code> · <code>viewer@finance.dev</code><br/>
+        <span>Password pattern: <code>Role@1234</code> (e.g. <code>Admin@1234</code>)</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>
