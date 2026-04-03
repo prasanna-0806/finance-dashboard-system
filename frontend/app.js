@@ -75,7 +75,7 @@ function initSidebar() {
   if (avatarEl) avatarEl.textContent = (user.name || user.email || 'U')[0].toUpperCase();
 
   // Hide admin-only elements for non-admins
-  if (user.role < 3) {
+  if (!isAdmin(user.role)) {
     document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
   }
 

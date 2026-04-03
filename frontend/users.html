@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Users — FinanceOS</title>
+  <link rel="stylesheet" href="dashboard.css" />
+</head>
+
+<body>
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo">FinanceOS</div>
+
+      <nav>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="records.html">Records</a>
+        <a href="users.html" class="active">Users</a>
+      </nav>
+
+      <div class="user-box">
+        <div id="userName">Admin User</div>
+        <button onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+      <h1>Users</h1>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody id="usersTableBody">
+            <tr><td colspan="6">Loading users...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script src="users.js"></script>
+</body>
+</html>

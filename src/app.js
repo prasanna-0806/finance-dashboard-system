@@ -11,6 +11,10 @@ const recordsRoutes   = require('./routes/records');
 const dashboardRoutes = require('./routes/dashboard');
 
 const app = express();
+const path = require('path');
+
+// Serve frontend files
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 // ─── Global middleware ────────────────────────────────────────────────────────
 
@@ -34,6 +38,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
+app.get('/', (req, res) => {
+  res.send('Finance Backend API is running 🚀');
+});
 app.use('/api/auth',      authRoutes);
 app.use('/api/users',     userRoutes);
 app.use('/api/records',   recordsRoutes);

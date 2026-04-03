@@ -9,9 +9,9 @@ const bcrypt = require('bcryptjs');
 const HASH_ROUNDS = 12;
 
 const users = [
-  { name: 'Admin User',    email: 'admin@finance.dev',   password: 'Admin@1234',   role: 3, status: 'active' },
-  { name: 'Analyst User',  email: 'analyst@finance.dev', password: 'Analyst@1234', role: 2, status: 'active' },
-  { name: 'Viewer User',   email: 'viewer@finance.dev',  password: 'Viewer@1234',  role: 1, status: 'active' },
+  { name: 'Admin User', email: 'admin@finance.dev', password: 'Admin@1234', role: 'admin', is_active: true },
+  { name: 'Analyst User', email: 'analyst@finance.dev', password: 'Analyst@1234', role: 'analyst', is_active: true },
+  { name: 'Viewer User', email: 'viewer@finance.dev', password: 'Viewer@1234', role: 'viewer', is_active: true },
 ];
 
 const categories = ['Salary', 'Freelance', 'Investment', 'Rent', 'Utilities', 'Groceries', 'Marketing', 'Travel', 'Equipment', 'Insurance', 'Subscriptions', 'Consulting'];
@@ -86,7 +86,14 @@ function generateRecords(adminId) {
   ];
 
   expenses.forEach(e => {
-    records.push({ ...e, type: 'expense', created_by: adminId });
+    records.push({
+  amount: e.amount,
+  type: 'expense',
+  category: e.category,
+  date: daysAgo(e.days), 
+  notes: e.notes,
+  created_by: adminId
+});
   });
 
   return records;
@@ -104,14 +111,14 @@ async function seed() {
       for (const u of users) {
         const hash = await bcrypt.hash(u.password, HASH_ROUNDS);
         const res = await client.query(
-          `INSERT INTO users (name, email, password_hash, role, status)
-           VALUES ($1, $2, $3, $4, $5)
-           ON CONFLICT (email) DO UPDATE SET role = EXCLUDED.role, status = EXCLUDED.status
+          `INSERT INTO users (name, email, password, role, is_active)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (email) DO UPDATE SET role = EXCLUDED.role, is_active = EXCLUDED.is_active
            RETURNING id, role`,
-          [u.name, u.email, hash, u.role, u.status]
+          [u.name, u.email, hash, u.role, u.is_active]
         );
         console.log(`  ✔ User: ${u.email} (role ${u.role})`);
-        if (u.role === 3) return res.rows[0].id;
+        if (u.role === 'admin') return res.rows[0].id;
       }
     })();
 
@@ -119,10 +126,10 @@ async function seed() {
     const records = generateRecords(insertedAdminId);
     for (const r of records) {
       await client.query(
-        `INSERT INTO financial_records (amount, type, category, date, notes, description, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `INSERT INTO financial_records (amount, type, category, date, notes, created_by)
+VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT DO NOTHING`,
-        [r.amount, r.type, r.category, r.date, r.notes, r.description, r.created_by]
+        [r.amount, r.type, r.category, r.date, r.notes, r.created_by]
       );
     }
     console.log(`  ✔ Inserted ${records.length} financial records`);
