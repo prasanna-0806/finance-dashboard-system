@@ -14,7 +14,7 @@ const app = express();
 const path = require('path');
 
 // Serve frontend files
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // ─── Global middleware ────────────────────────────────────────────────────────
 
@@ -39,7 +39,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 app.get('/', (req, res) => {
-  res.send('Finance Backend API is running 🚀');
+  res.sendFile(path.join(__dirname, '../public/login.html'));
 });
 app.use('/api/auth',      authRoutes);
 app.use('/api/users',     userRoutes);
