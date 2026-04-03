@@ -4,11 +4,30 @@ A backend system for a finance dashboard with role-based access control, financi
 
 ---
 
+## Live Demo
+
+| | URL |
+|---|---|
+| **Frontend** | https://finance-dashboard-system-5noe.onrender.com/html/login.html |
+| **API Docs (Swagger)** | https://finance-dashboard-system-5noe.onrender.com/api-docs |
+
+> ⚠️ Hosted on Render free tier — first request may take 30–50 seconds to wake up.
+
+**Demo credentials:**
+
+| Email | Password | Role |
+|---|---|---|
+| admin@finance.dev | Admin@1234 | Admin |
+| analyst@finance.dev | Analyst@1234 | Analyst |
+| viewer@finance.dev | Viewer@1234 | Viewer |
+
+---
+
 ## Tech Stack
 
 - **Runtime**: Node.js
 - **Framework**: Express.js
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL (Neon — serverless, production)
 - **Auth**: JWT (JSON Web Tokens)
 - **Password Hashing**: bcryptjs
 - **Validation**: express-validator
@@ -72,7 +91,7 @@ finance-backend/
 
 ---
 
-## Setup
+## Setup (Local)
 
 ### Prerequisites
 
@@ -130,7 +149,7 @@ Creates the `users` and `financial_records` tables with indexes and triggers.
 npm run seed
 ```
 
-Creates 3 demo users (one per role) and 37 sample financial records.
+Creates 3 demo users (one per role) and sample financial records.
 
 ### 6. Start the server
 
@@ -140,9 +159,11 @@ npm start
 
 - **API:** http://localhost:3000
 - **Swagger UI:** http://localhost:3000/api-docs
-- **Frontend:** http://localhost:3000 (login; static files under `/html/`, `/js/`, `/css/`)
+- **Frontend:** http://localhost:3000/html/login.html
 
 For development with auto-reload, use `npm run dev`.
+
+> **Note:** If running locally, update `public/js/app.js` line 1 to `const API = 'http://localhost:3000'`
 
 ---
 
@@ -156,13 +177,6 @@ npm run migrate
 npm run seed
 npm start
 ```
-## Demo Credentials
-
-| Email | Password | Role |
-|---|---|---|
-| admin@finance.dev | Admin@1234 | Admin |
-| analyst@finance.dev | Analyst@1234 | Analyst |
-| viewer@finance.dev | Viewer@1234 | Viewer |
 
 ---
 
@@ -177,7 +191,7 @@ npm start
 | Create / edit / delete records | ✗ | ✗ | ✓ |
 | Manage users (roles, status) | ✗ | ✗ | ✓ |
 
-Role hierarchy is enforced at the backend middleware level — not just the UI. Every API route checks the authenticated user's role before processing the request.
+Role hierarchy is enforced at the backend middleware level — not just the UI. Every API route checks the authenticated user's role before processing the request. **Admins have every analyst capability** (view records, insights, and **CSV export**), plus user management and record create/update/delete.
 
 ---
 
@@ -193,7 +207,7 @@ PostgreSQL must be running with schema migrated and demo users present (`npm run
 
 ## API Reference
 
-Full interactive documentation is available at **`http://localhost:3000/api-docs`** (Swagger UI).
+Full interactive documentation is available at **https://finance-dashboard-system-5noe.onrender.com/api-docs** (Swagger UI).
 
 ### Auth
 
@@ -212,6 +226,8 @@ Full interactive documentation is available at **`http://localhost:3000/api-docs
 | PATCH | `/api/records/:id` | Admin | Update a record |
 | DELETE | `/api/records/:id` | Admin | Soft-delete a record |
 | GET | `/api/records/export` | Analyst+ | Export filtered records as CSV |
+
+*Analyst+ means analyst **or** admin.*
 
 **Supported filters for GET /api/records:**
 
@@ -339,7 +355,7 @@ Indexes are created on `type`, `category`, and `date` (filtered to non-deleted r
 - **Soft Delete** — records are never permanently removed; `deleted_at` is set instead
 - **Pagination** — all list endpoints support `page` and `limit` params
 - **Search** — full-text search across `notes` and `category` fields
-- **CSV Export** — analysts and admins can export filtered records
+- **CSV Export** — analysts and admins can export filtered records (`GET /api/records/export`)
 - **Rate Limiting** — 100 requests per 15 minutes per IP
 - **Swagger API Docs** — interactive docs at `/api-docs`
 - **Frontend** — fully functional multi-page dashboard served as static files
