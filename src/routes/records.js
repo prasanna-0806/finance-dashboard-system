@@ -19,9 +19,6 @@ const handleValidation = (req, res, next) => {
   next();
 };
 
-// FIX: The DB uses UUID primary keys (gen_random_uuid()), but the original routes
-// used param('id').isInt() which rejects every UUID with a 422 error.
-// Replaced with isUUID() on all /:id routes so GET, PATCH, DELETE actually work.
 
 /**
  * @swagger
@@ -31,6 +28,22 @@ const handleValidation = (req, res, next) => {
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         schema: { type: string, enum: [income, expense] }
+ *       - in: query
+ *         name: category
+ *         schema: { type: string }
+ *       - in: query
+ *         name: dateFrom
+ *         schema: { type: string, format: date }
+ *       - in: query
+ *         name: dateTo
+ *         schema: { type: string, format: date }
+ *     responses:
+ *       200:
+ *         description: CSV file download
  */
 router.get(
   '/export',
@@ -116,6 +129,17 @@ router.get(
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: Record UUID
+ *     responses:
+ *       200:
+ *         description: Record object
+ *       404:
+ *         description: Record not found
  */
 router.get(
   '/:id',
@@ -133,7 +157,6 @@ router.get(
     }
   }
 );
-
 /**
  * @swagger
  * /api/records:
@@ -142,6 +165,22 @@ router.get(
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [amount, type, category, date]
+ *             properties:
+ *               amount: { type: number, example: 5000 }
+ *               type: { type: string, enum: [income, expense] }
+ *               category: { type: string, example: Salary }
+ *               date: { type: string, format: date, example: "2026-04-01" }
+ *               notes: { type: string, example: Monthly salary }
+ *     responses:
+ *       201:
+ *         description: Created record
  */
 router.post(
   '/',
@@ -174,6 +213,26 @@ router.post(
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               amount: { type: number }
+ *               type: { type: string, enum: [income, expense] }
+ *               category: { type: string }
+ *               date: { type: string, format: date }
+ *               notes: { type: string }
+ *     responses:
+ *       200:
+ *         description: Updated record
  */
 router.patch(
   '/:id',
@@ -198,7 +257,6 @@ router.patch(
     }
   }
 );
-
 /**
  * @swagger
  * /api/records/{id}:
@@ -207,6 +265,17 @@ router.patch(
  *     tags: [Records]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string }
+ *         description: Record UUID
+ *     responses:
+ *       200:
+ *         description: Record deleted
+ *       404:
+ *         description: Record not found
  */
 router.delete(
   '/:id',
