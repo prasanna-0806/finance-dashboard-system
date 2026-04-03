@@ -1,4 +1,8 @@
 {
+  "jest": {
+   "testEnvironment": "node",
+  "testTimeout": 15000
+ },
   "name": "finance-backend",
   "version": "1.0.0",
   "description": "Finance Data Processing and Access Control Backend",
@@ -6,7 +10,9 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "migrate": "node src/db/migrate.js"
+    "migrate": "node src/db/migrate.js",
+    "seed": "node src/db/seed.js",
+    "test": "jest --forceExit --detectOpenHandles"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -21,6 +27,8 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+     "jest": "^29.0.0",
+     "supertest": "^6.3.0"
   }
 }
