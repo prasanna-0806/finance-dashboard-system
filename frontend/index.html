@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FinLedger — Finance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0d0f14;
+    --bg2: #13161d;
+    --bg3: #1a1e28;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --accent: #c8f04c;
+    --accent2: #4cf0b8;
+    --red: #f04c6a;
+    --amber: #f0a94c;
+    --income: #4cf0b8;
+    --expense: #f04c6a;
+    --radius: 14px;
+    --font-display: 'DM Serif Display', serif;
+    --font-body: 'Outfit', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── AUTH SCREEN ─────────────────────────────────────── */
+  #auth-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200,240,76,0.08) 0%, transparent 70%), var(--bg);
+  }
+
+  .auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 48px 40px;
+  }
+
+  .auth-logo {
+    font-family: var(--font-display);
+    font-size: 32px;
+    color: var(--accent);
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+
+  .auth-subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 36px;
+  }
+
+  .auth-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 28px;
+  }
+
+  .auth-tab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.2s;
+  }
+
+  .auth-tab.active {
+    background: var(--bg2);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; letter-spacing: 0.04em; text-transform: uppercase; }
+
+  .field input, .field select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field input::placeholder { color: var(--muted); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: #0d0f14;
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:active { transform: scale(0.99); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .auth-error {
+    background: rgba(240,76,106,0.12);
+    border: 1px solid rgba(240,76,106,0.3);
+    color: var(--red);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  /* ── APP LAYOUT ──────────────────────────────────────── */
+  #app { display: none; min-height: 100vh; }
+
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 230px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 18px;
+    z-index: 10;
+  }
+
+  .sidebar-logo {
+    font-family: var(--font-display);
+    font-size: 26px;
+    color: var(--accent);
+    margin-bottom: 36px;
+    padding-left: 8px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: rgba(200,240,76,0.1); color: var(--accent); }
+  .nav-item .nav-icon { font-size: 17px; width: 20px; text-align: center; }
+
+  .sidebar-bottom { margin-top: auto; }
+
+  .user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg3);
+    border-radius: 10px;
+    margin-bottom: 8px;
+  }
+
+  .user-avatar {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0d0f14;
+    flex-shrink: 0;
+  }
+
+  .user-info { min-width: 0; }
+  .user-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-role { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .btn-logout {
+    width: 100%;
+    padding: 9px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: var(--font-body);
+  }
+
+  .btn-logout:hover { border-color: var(--red); color: var(--red); }
+
+  .main {
+    margin-left: 230px;
+    padding: 36px 40px;
+    min-height: 100vh;
+  }
+
+  /* ── PAGES ───────────────────────────────────────────── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: 34px;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+
+  .page-sub { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  /* ── STAT CARDS ──────────────────────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .stat-card.income::before { background: var(--income); }
+  .stat-card.expense::before { background: var(--expense); }
+  .stat-card.net::before { background: var(--accent); }
+
+  .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+
+  .stat-value {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+  }
+
+  .stat-value.income { color: var(--income); }
+  .stat-value.expense { color: var(--expense); }
+  .stat-value.net { color: var(--accent); }
+
+  /* ── CHART AREA ──────────────────────────────────────── */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 20px;
+  }
+
+  /* Bar chart */
+  .bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 160px; }
+  .bar-group { flex: 1; display: flex; gap: 3px; align-items: flex-end; }
+  .bar { flex: 1; border-radius: 4px 4px 0 0; transition: opacity 0.2s; min-height: 3px; cursor: pointer; }
+  .bar:hover { opacity: 0.75; }
+  .bar.income-bar { background: var(--income); }
+  .bar.expense-bar { background: var(--expense); }
+  .bar-labels { display: flex; gap: 10px; margin-top: 8px; }
+  .bar-label { flex: 1; text-align: center; font-size: 10px; color: var(--muted); font-family: var(--font-mono); }
+
+  /* Category list */
+  .category-list { display: flex; flex-direction: column; gap: 12px; }
+  .category-item { display: flex; flex-direction: column; gap: 5px; }
+  .category-row { display: flex; justify-content: space-between; align-items: center; }
+  .category-name { font-size: 13px; }
+  .category-amount { font-family: var(--font-mono); font-size: 13px; }
+  .category-bar-bg { height: 4px; background: var(--bg3); border-radius: 2px; }
+  .category-bar-fill { height: 4px; border-radius: 2px; transition: width 0.6s ease; }
+
+  /* ── TABLE ───────────────────────────────────────────── */
+  .table-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-select, .filter-input {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+  }
+
+  .filter-select:focus, .filter-input:focus { border-color: var(--accent); }
+  .filter-input::placeholder { color: var(--muted); }
+
+  .btn-add {
+    margin-left: auto;
+    padding: 9px 18px;
+    background: var(--accent);
+    color: #0d0f14;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-add:hover { opacity: 0.85; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 13px 14px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .badge.income { background: rgba(76,240,184,0.12); color: var(--income); }
+  .badge.expense { background: rgba(240,76,106,0.12); color: var(--expense); }
+
+  .amount { font-family: var(--font-mono); }
+  .amount.income { color: var(--income); }
+  .amount.expense { color: var(--expense); }
+
+  .btn-icon {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+    margin-right: 4px;
+    font-family: var(--font-body);
+  }
+
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-icon.del:hover { border-color: var(--red); color: var(--red); }
+
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .page-btn {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+    font-family: var(--font-body);
+  }
+
+  .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .page-info { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+
+  /* ── MODAL ───────────────────────────────────────────── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 18px;
+    padding: 36px 32px;
+    width: 440px;
+    max-width: 95vw;
+    animation: modalIn 0.2s ease;
+  }
+
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.97) translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 24px;
+    margin-bottom: 24px;
+  }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+
+  .btn-secondary {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-submit {
+    padding: 10px 24px;
+    background: var(--accent);
+    color: #0d0f14;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .btn-submit:hover { opacity: 0.85; }
+
+  /* ── TOAST ───────────────────────────────────────────── */
+  #toast {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 14px;
+    z-index: 200;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.2s;
+    pointer-events: none;
+    max-width: 320px;
+  }
+
+  #toast.show { opacity: 1; transform: none; }
+  #toast.success { border-color: rgba(76,240,184,0.4); color: var(--income); }
+  #toast.error { border-color: rgba(240,76,106,0.4); color: var(--red); }
+
+  /* ── RECENT ACTIVITY ─────────────────────────────────── */
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .activity-item:last-child { border-bottom: none; }
+
+  .activity-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .activity-dot.income { background: var(--income); }
+  .activity-dot.expense { background: var(--expense); }
+  .activity-info { flex: 1; min-width: 0; }
+  .activity-cat { font-size: 13px; font-weight: 500; }
+  .activity-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .activity-amount { font-family: var(--font-mono); font-size: 14px; }
+
+  /* ── LOADING ─────────────────────────────────────────── */
+  .skeleton { background: linear-gradient(90deg, var(--bg3) 25%, var(--bg2) 50%, var(--bg3) 75%); background-size: 200%; border-radius: 6px; animation: shimmer 1.4s infinite; }
+  @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+  .empty { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
+
+  /* ── USERS PAGE ──────────────────────────────────────── */
+  .role-badge {
+    display: inline-flex;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .role-badge.admin { background: rgba(200,240,76,0.12); color: var(--accent); }
+  .role-badge.analyst { background: rgba(76,169,240,0.12); color: #4cb8f0; }
+  .role-badge.viewer { background: rgba(107,114,128,0.15); color: var(--muted); }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+  }
+
+  .status-dot.active { background: var(--income); }
+  .status-dot.inactive { background: var(--muted); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ── AUTH ─────────────────────────────────────────────── -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">FinLedger</div>
+    <div class="auth-subtitle">Finance dashboard & access control</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign in</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+    </div>
+    <div id="auth-error" class="auth-error"></div>
+
+    <!-- Login form -->
+    <div id="login-form">
+      <div class="field"><label>Email</label><input id="l-email" type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Password</label><input id="l-pass" type="password" placeholder="••••••••"/></div>
+      <button class="btn-primary" onclick="handleLogin()">Sign in</button>
+    </div>
+
+    <!-- Register form -->
+    <div id="register-form" style="display:none">
+      <div class="field"><label>Name</label><input id="r-name" type="text" placeholder="Your name"/></div>
+      <div class="field"><label>Email</label><input id="r-email" type="email" placeholder="you@example.com"/></div>
+      <div class="field"><label>Password</label><input id="r-pass" type="password" placeholder="Min 6 characters"/></div>
+      <div class="field">
+        <label>Role</label>
+        <select id="r-role">
+          <option value="viewer">Viewer — Dashboard only</option>
+          <option value="analyst">Analyst — Records + Dashboard</option>
+          <option value="admin">Admin — Full access</option>
+        </select>
+      </div>
+      <button class="btn-primary" onclick="handleRegister()">Create account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ──────────────────────────────────────────────── -->
+<div id="app">
+  <nav class="sidebar">
+    <div class="sidebar-logo">FinLedger</div>
+    <button class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+      <span class="nav-icon">◈</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="showPage('records')" id="nav-records" style="display:none">
+      <span class="nav-icon">≡</span> Records
+    </button>
+    <button class="nav-item" onclick="showPage('insights')" id="nav-insights" style="display:none">
+      <span class="nav-icon">◉</span> Insights
+    </button>
+    <button class="nav-item" onclick="showPage('users')" id="nav-users" style="display:none">
+      <span class="nav-icon">◎</span> Users
+    </button>
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">—</div>
+          <div class="user-role" id="user-role">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <!-- DASHBOARD PAGE -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Overview</div>
+          <div class="page-sub">Financial summary & analytics</div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card income"><div class="stat-label">Total Income</div><div class="stat-value income" id="stat-income">—</div></div>
+        <div class="stat-card expense"><div class="stat-label">Total Expenses</div><div class="stat-value expense" id="stat-expenses">—</div></div>
+        <div class="stat-card net"><div class="stat-label">Net Balance</div><div class="stat-value net" id="stat-net">—</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-title">Monthly Trends</div>
+          <div class="bar-chart" id="bar-chart"></div>
+          <div class="bar-labels" id="bar-labels"></div>
+          <div style="display:flex;gap:14px;margin-top:14px">
+            <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;background:var(--income);border-radius:2px"></div>Income</div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;background:var(--expense);border-radius:2px"></div>Expenses</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">By Category</div>
+          <div class="category-list" id="category-list"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent Activity</div>
+        <div id="recent-list"></div>
+      </div>
+    </div>
+
+    <!-- INSIGHTS PAGE -->
+    <div class="page" id="page-insights">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Insights</div>
+          <div class="page-sub">Analytics and financial patterns</div>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card income"><div class="stat-label">Total Income</div><div class="stat-value income" id="ins-income">—</div></div>
+        <div class="stat-card expense"><div class="stat-label">Total Expenses</div><div class="stat-value expense" id="ins-expenses">—</div></div>
+        <div class="stat-card net"><div class="stat-label">Net Balance</div><div class="stat-value net" id="ins-net">—</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-title">Weekly Trends (last 12 weeks)</div>
+          <div class="bar-chart" id="weekly-chart"></div>
+          <div class="bar-labels" id="weekly-labels"></div>
+          <div style="display:flex;gap:14px;margin-top:14px">
+            <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;background:var(--income);border-radius:2px"></div>Income</div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;background:var(--expense);border-radius:2px"></div>Expenses</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Top Expense Categories</div>
+          <div class="category-list" id="ins-expense-cats"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Income vs Expense Breakdown</div>
+        <div class="category-list" id="ins-income-cats" style="margin-top:4px"></div>
+      </div>
+    </div>
+
+    <!-- RECORDS PAGE -->
+    <div class="page" id="page-records">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Records</div>
+          <div class="page-sub">Financial transactions</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="table-controls">
+          <select class="filter-select" id="filter-type" onchange="loadRecords()">
+            <option value="">All types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+          <input class="filter-input" id="filter-cat" placeholder="Filter by category…" oninput="debounceLoadRecords()"/>
+          <input class="filter-input" type="date" id="filter-from" onchange="loadRecords()"/>
+          <input class="filter-input" type="date" id="filter-to" onchange="loadRecords()"/>
+          <button class="btn-add" id="btn-add-record" onclick="openAddModal()" style="display:none">＋ Add Record</button>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Date</th><th>Category</th><th>Type</th><th>Amount</th><th>Notes</th><th id="actions-col" style="display:none">Actions</th>
+          </tr></thead>
+          <tbody id="records-body"></tbody>
+        </table>
+        <div class="pagination">
+          <button class="page-btn" id="btn-prev" onclick="changePage(-1)" disabled>← Prev</button>
+          <span class="page-info" id="page-info">—</span>
+          <button class="page-btn" id="btn-next" onclick="changePage(1)">Next →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS PAGE -->
+    <div class="page" id="page-users">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Users</div>
+          <div class="page-sub">Manage access and roles</div>
+        </div>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="users-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── ADD RECORD MODAL ──────────────────────────────────── -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal">
+    <div class="modal-title">New Record</div>
+    <div class="field"><label>Amount</label><input id="m-amount" type="number" step="0.01" min="0.01" placeholder="0.00"/></div>
+    <div class="field"><label>Type</label>
+      <select id="m-type"><option value="income">Income</option><option value="expense">Expense</option></select>
+    </div>
+    <div class="field"><label>Category</label><input id="m-category" type="text" placeholder="e.g. Salary, Rent, Food"/></div>
+    <div class="field"><label>Date</label><input id="m-date" type="date"/></div>
+    <div class="field"><label>Notes (optional)</label><input id="m-notes" type="text" placeholder="Add a note…"/></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('modal-add')">Cancel</button>
+      <button class="btn-submit" onclick="submitRecord()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ─────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<script>
+const API = 'http://localhost:3000/api';
+let token = null;
+let currentUser = null;
+let recordsPage = 1;
+let recordsTotal = 0;
+const LIMIT = 15;
+let debounceTimer;
+
+// ── HELPERS ───────────────────────────────────────────────
+const fmt = (n) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+
+const apiFetch = async (path, opts = {}) => {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+    ...opts,
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Something went wrong');
+  return data;
+};
+
+const showToast = (msg, type = 'success') => {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => t.className = '', 3000);
+};
+
+const showError = (msg) => {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+};
+
+// ── AUTH ──────────────────────────────────────────────────
+const switchAuthTab = (tab) => {
+  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (tab === 'login')));
+  document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('auth-error').style.display = 'none';
+};
+
+const handleLogin = async () => {
+  try {
+    const data = await apiFetch('/auth/login', { method: 'POST', body: { email: document.getElementById('l-email').value, password: document.getElementById('l-pass').value } });
+    token = data.token;
+    currentUser = data.user;
+    enterApp();
+  } catch (e) { showError(e.message); }
+};
+
+const handleRegister = async () => {
+  try {
+    await apiFetch('/auth/register', { method: 'POST', body: { name: document.getElementById('r-name').value, email: document.getElementById('r-email').value, password: document.getElementById('r-pass').value, role: document.getElementById('r-role').value } });
+    showError('');
+    document.getElementById('auth-error').style.cssText = 'display:block;background:rgba(76,240,184,0.1);border-color:rgba(76,240,184,0.3);color:var(--income)';
+    document.getElementById('auth-error').textContent = 'Account created! Please sign in.';
+    switchAuthTab('login');
+  } catch (e) { showError(e.message); }
+};
+
+const enterApp = () => {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  document.getElementById('user-name').textContent = currentUser.name;
+  document.getElementById('user-role').textContent = currentUser.role;
+  document.getElementById('user-avatar').textContent = currentUser.name[0].toUpperCase();
+
+  // Reset ALL nav items first so switching accounts never bleeds previous role's UI
+  document.getElementById('nav-records').style.display    = 'none';
+  document.getElementById('nav-insights').style.display   = 'none';
+  document.getElementById('nav-users').style.display      = 'none';
+  document.getElementById('btn-add-record').style.display = 'none';
+  document.getElementById('actions-col').style.display    = 'none';
+
+  const role = currentUser.role;
+
+  if (role === 'analyst' || role === 'admin') {
+    document.getElementById('nav-records').style.display  = 'flex';
+    document.getElementById('nav-insights').style.display = 'flex';
+  }
+
+  if (role === 'admin') {
+    document.getElementById('nav-users').style.display      = 'flex';
+    document.getElementById('btn-add-record').style.display = 'flex';
+    document.getElementById('actions-col').style.display    = 'table-cell';
+  }
+
+  showPage('dashboard');
+  loadDashboard();
+};
+
+const logout = () => {
+  token = null; currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+};
+
+// ── NAVIGATION ────────────────────────────────────────────
+const showPage = (name) => {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  if (name === 'records') loadRecords();
+  if (name === 'users') loadUsers();
+  if (name === 'insights') loadInsights();
+};
+
+// ── DASHBOARD ─────────────────────────────────────────────
+const loadDashboard = async () => {
+  try {
+    const [summary, categories, monthly, recent] = await Promise.all([
+      apiFetch('/dashboard/summary'),
+      apiFetch('/dashboard/categories'),
+      apiFetch('/dashboard/trends/monthly'),
+      apiFetch('/dashboard/recent?limit=8'),
+    ]);
+
+    document.getElementById('stat-income').textContent = fmt(summary.total_income);
+    document.getElementById('stat-expenses').textContent = fmt(summary.total_expenses);
+    document.getElementById('stat-net').textContent = fmt(summary.net_balance);
+
+    renderBarChart(monthly);
+    renderCategories(categories);
+    renderRecent(recent);
+  } catch (e) { showToast(e.message, 'error'); }
+};
+
+const renderBarChart = (data) => {
+  if (!data.length) { document.getElementById('bar-chart').innerHTML = '<div class="empty">No trend data yet</div>'; return; }
+  const maxVal = Math.max(...data.map(d => Math.max(+d.income, +d.expenses)), 1);
+  const last8 = data.slice(-8);
+
+  document.getElementById('bar-chart').innerHTML = last8.map(d => `
+    <div class="bar-group">
+      <div class="bar income-bar" style="height:${(d.income/maxVal)*140}px" title="Income: ${fmt(d.income)}"></div>
+      <div class="bar expense-bar" style="height:${(d.expenses/maxVal)*140}px" title="Expenses: ${fmt(d.expenses)}"></div>
+    </div>`).join('');
+
+  document.getElementById('bar-labels').innerHTML = last8.map(d =>
+    `<div class="bar-label">${d.month.slice(5)}</div>`).join('');
+};
+
+const renderCategories = (data) => {
+  if (!data.length) { document.getElementById('category-list').innerHTML = '<div class="empty">No data yet</div>'; return; }
+  const maxAmt = Math.max(...data.map(d => +d.total), 1);
+  const top6 = data.slice(0, 6);
+  document.getElementById('category-list').innerHTML = top6.map(d => `
+    <div class="category-item">
+      <div class="category-row">
+        <span class="category-name">${d.category}</span>
+        <span class="category-amount" style="color:${d.type==='income'?'var(--income)':'var(--expense)'}">${fmt(d.total)}</span>
+      </div>
+      <div class="category-bar-bg">
+        <div class="category-bar-fill" style="width:${(d.total/maxAmt)*100}%;background:${d.type==='income'?'var(--income)':'var(--expense)'}"></div>
+      </div>
+    </div>`).join('');
+};
+
+const renderRecent = (data) => {
+  if (!data.length) { document.getElementById('recent-list').innerHTML = '<div class="empty">No recent activity</div>'; return; }
+  document.getElementById('recent-list').innerHTML = data.map(r => `
+    <div class="activity-item">
+      <div class="activity-dot ${r.type}"></div>
+      <div class="activity-info">
+        <div class="activity-cat">${r.category}</div>
+        <div class="activity-date">${new Date(r.date).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})} · ${r.notes || '—'}</div>
+      </div>
+      <div class="activity-amount" style="color:${r.type==='income'?'var(--income)':'var(--expense)'}">
+        ${r.type==='income'?'+':'-'}${fmt(r.amount)}
+      </div>
+    </div>`).join('');
+};
+
+// ── INSIGHTS ──────────────────────────────────────────────
+const loadInsights = async () => {
+  try {
+    const [summary, categories, weekly] = await Promise.all([
+      apiFetch('/dashboard/summary'),
+      apiFetch('/dashboard/categories'),
+      apiFetch('/dashboard/trends/weekly'),
+    ]);
+
+    document.getElementById('ins-income').textContent   = fmt(summary.total_income);
+    document.getElementById('ins-expenses').textContent = fmt(summary.total_expenses);
+    document.getElementById('ins-net').textContent      = fmt(summary.net_balance);
+
+    // Weekly chart
+    const maxVal = Math.max(...weekly.map(d => Math.max(+d.income, +d.expenses)), 1);
+    const last8  = weekly.slice(-8);
+    document.getElementById('weekly-chart').innerHTML = last8.map(d => `
+      <div class="bar-group">
+        <div class="bar income-bar"  style="height:${(d.income  /maxVal)*140}px" title="Income: ${fmt(d.income)}"></div>
+        <div class="bar expense-bar" style="height:${(d.expenses/maxVal)*140}px" title="Expenses: ${fmt(d.expenses)}"></div>
+      </div>`).join('');
+    document.getElementById('weekly-labels').innerHTML = last8.map(d =>
+      `<div class="bar-label">${d.week_start.slice(5)}</div>`).join('');
+
+    // Expense categories
+    const expenseCats = categories.filter(c => c.type === 'expense');
+    const maxExp = Math.max(...expenseCats.map(c => +c.total), 1);
+    document.getElementById('ins-expense-cats').innerHTML = expenseCats.slice(0,6).map(c => `
+      <div class="category-item">
+        <div class="category-row">
+          <span class="category-name">${c.category}</span>
+          <span class="category-amount" style="color:var(--expense)">${fmt(c.total)}</span>
+        </div>
+        <div class="category-bar-bg">
+          <div class="category-bar-fill" style="width:${(c.total/maxExp)*100}%;background:var(--expense)"></div>
+        </div>
+      </div>`).join('') || '<div class="empty">No expense data</div>';
+
+    // Income categories
+    const incomeCats = categories.filter(c => c.type === 'income');
+    const maxInc = Math.max(...incomeCats.map(c => +c.total), 1);
+    document.getElementById('ins-income-cats').innerHTML = incomeCats.slice(0,6).map(c => `
+      <div class="category-item">
+        <div class="category-row">
+          <span class="category-name">${c.category}</span>
+          <span class="category-amount" style="color:var(--income)">${fmt(c.total)}</span>
+        </div>
+        <div class="category-bar-bg">
+          <div class="category-bar-fill" style="width:${(c.total/maxInc)*100}%;background:var(--income)"></div>
+        </div>
+      </div>`).join('') || '<div class="empty">No income data</div>';
+
+  } catch (e) { showToast(e.message, 'error'); }
+};
+
+// ── RECORDS ───────────────────────────────────────────────
+const loadRecords = async () => {
+  const type = document.getElementById('filter-type').value;
+  const cat  = document.getElementById('filter-cat').value;
+  const from = document.getElementById('filter-from').value;
+  const to   = document.getElementById('filter-to').value;
+
+  const params = new URLSearchParams({ page: recordsPage, limit: LIMIT });
+  if (type) params.append('type', type);
+  if (cat)  params.append('category', cat);
+  if (from) params.append('dateFrom', from);
+  if (to)   params.append('dateTo', to);
+
+  try {
+    const data = await apiFetch('/records?' + params);
+    recordsTotal = data.total;
+
+    const isAdmin = currentUser.role === 'admin';
+    document.getElementById('records-body').innerHTML = data.records.length
+      ? data.records.map(r => `
+        <tr>
+          <td>${new Date(r.date).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}</td>
+          <td>${r.category}</td>
+          <td><span class="badge ${r.type}">${r.type}</span></td>
+          <td><span class="amount ${r.type}">${r.type==='income'?'+':'-'}${fmt(r.amount)}</span></td>
+          <td style="color:var(--muted);font-size:13px">${r.notes || '—'}</td>
+          <td>${isAdmin ? `<button class="btn-icon del" onclick="deleteRecord('${r.id}')">Delete</button>` : ''}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="6" class="empty">No records found</td></tr>';
+
+    const totalPages = Math.ceil(recordsTotal / LIMIT);
+    document.getElementById('page-info').textContent = `Page ${recordsPage} of ${Math.max(totalPages, 1)}`;
+    document.getElementById('btn-prev').disabled = recordsPage <= 1;
+    document.getElementById('btn-next').disabled = recordsPage >= totalPages;
+  } catch (e) { showToast(e.message, 'error'); }
+};
+
+const debounceLoadRecords = () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(loadRecords, 350);
+};
+
+const changePage = (dir) => { recordsPage += dir; loadRecords(); };
+
+// ── ADD RECORD MODAL ──────────────────────────────────────
+const openAddModal = () => {
+  document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('modal-add').classList.add('open');
+};
+
+const closeModal = (id) => document.getElementById(id).classList.remove('open');
+
+const submitRecord = async () => {
+  const body = {
+    amount: parseFloat(document.getElementById('m-amount').value),
+    type: document.getElementById('m-type').value,
+    category: document.getElementById('m-category').value.trim(),
+    date: document.getElementById('m-date').value,
+    notes: document.getElementById('m-notes').value.trim() || undefined,
+  };
+
+  try {
+    await apiFetch('/records', { method: 'POST', body });
+    closeModal('modal-add');
+    showToast('Record created!');
+    loadRecords();
+    loadDashboard();
+  } catch (e) { showToast(e.message, 'error'); }
+};
+
+const deleteRecord = async (id) => {
+  if (!confirm('Soft-delete this record?')) return;
+  try {
+    await apiFetch('/records/' + id, { method: 'DELETE' });
+    showToast('Record deleted');
+    loadRecords();
+    loadDashboard();
+  } catch (e) { showToast(e.message, 'error'); }
+};
+
+// ── USERS ─────────────────────────────────────────────────
+const loadUsers = async () => {
+  try {
+    const data = await apiFetch('/users');
+    document.getElementById('users-body').innerHTML = data.users.map(u => `
+      <tr>
+        <td>${u.name}</td>
+        <td style="font-family:var(--font-mono);font-size:13px">${u.email}</td>
+        <td><span class="role-badge ${u.role}">${u.role}</span></td>
+        <td><span class="status-dot ${u.is_active?'active':'inactive'}"></span>${u.is_active?'Active':'Inactive'}</td>
+        <td style="color:var(--muted);font-size:13px">${new Date(u.created_at).toLocaleDateString('en-IN')}</td>
+        <td>
+          <select class="filter-select" style="padding:5px 8px;font-size:12px" onchange="changeRole('${u.id}', this.value)">
+            <option ${u.role==='viewer'?'selected':''} value="viewer">Viewer</option>
+            <option ${u.role==='analyst'?'selected':''} value="analyst">Analyst</option>
+            <option ${u.role==='admin'?'selected':''} value="admin">Admin</option>
+          </select>
+          <button class="btn-icon" onclick="toggleStatus('${u.id}', ${!u.is_active})" style="margin-left:4px">${u.is_active?'Deactivate':'Activate'}</button>
+        </td>
+      </tr>`).join('');
+  } catch (e) { showToast(e.message, 'error'); }
+};
+
+const changeRole = async (id, role) => {
+  try { await apiFetch('/users/'+id+'/role', { method:'PATCH', body:{role} }); showToast('Role updated'); }
+  catch (e) { showToast(e.message, 'error'); }
+};
+
+const toggleStatus = async (id, is_active) => {
+  try { await apiFetch('/users/'+id+'/status', { method:'PATCH', body:{is_active} }); showToast('Status updated'); loadUsers(); }
+  catch (e) { showToast(e.message, 'error'); }
+};
+
+// Set today's date on page load
+document.getElementById('m-date').value = new Date().toISOString().split('T')[0];
+</script>
+</body>
+</html>
