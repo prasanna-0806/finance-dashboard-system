@@ -21,7 +21,7 @@ async function apiFetch(path, options = {}) {
 
   if (res.status === 401) {
     clearSession();
-    window.location.href = 'login.html';
+    window.location.href = '/html/login.html';
     throw new Error('Unauthorized');
   }
 
@@ -69,7 +69,7 @@ function isAnalystOrAbove(role) {
 // ── Auth guard ───────────────────────────────────────────────────
 function requireAuth() {
   if (!getToken()) {
-    window.location.href = 'login.html';
+    window.location.href = '/html/login.html';
     return false;
   }
   return true;
@@ -101,7 +101,7 @@ function initSidebar() {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       clearSession();
-      window.location.href = 'login.html';
+      window.location.href = '/html/login.html';
     });
   }
 }

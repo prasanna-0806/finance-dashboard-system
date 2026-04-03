@@ -35,6 +35,8 @@ Role enforcement is handled by a `requireRole(minLevel)` middleware that checks 
 ```
 finance-dashboard-system/
 ├── src/
+│   ├── tests/
+│   │   └── api.test.js         # Jest + Supertest integration tests
 │   ├── db/
 │   │   ├── index.js            # PostgreSQL connection pool
 │   │   ├── migrate.js          # Schema creation (run once)
@@ -59,18 +61,22 @@ finance-dashboard-system/
 │   ├── swagger/
 │   │   └── swagger.js
 │   └── app.js                  # Express setup + entry point
-├── frontend/
-│   ├── login.html
-│   ├── dashboard.html
-│   ├── records.html
-│   ├── users.html
-│   ├── dashboard.css           # All styles (dark theme)
-│   ├── app.js                  # Shared: API helper, auth, utils
-│   ├── login.js
-│   ├── dashboard.js            # Charts, KPIs, recent activity
-│   └── records.js              # Search, filter, CRUD, CSV export
-├── tests/
-│   └── api.test.js             # Jest + Supertest integration tests
+├── public/
+│   ├── html/
+│   │   ├── login.html
+│   │   ├── dashboard.html
+│   │   ├── records.html
+│   │   ├── insights.html
+│   │   └── users.html
+│   ├── css/
+│   │   └── dashboard.css       # All styles (dark theme)
+│   └── js/
+│       ├── app.js              # Shared: API helper, auth, utils
+│       ├── login.js
+│       ├── dashboard.js        # Charts, KPIs, recent activity
+│       ├── records.js          # Search, filter, CRUD, CSV export
+│       ├── insights.js
+│       └── users.js
 ├── docker-compose.yml
 ├── .env.example
 └── package.json
@@ -135,7 +141,7 @@ npm start      # production
 
 - API: **http://localhost:3000**
 - Swagger UI: **http://localhost:3000/api-docs**
-- Frontend: open `frontend/login.html` in your browser
+- Frontend: **http://localhost:3000** (login page; static files under `/html/`, `/js/`, `/css/`)
 
 ---
 

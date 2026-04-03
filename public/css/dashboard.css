@@ -608,6 +608,20 @@ body:not(.login-page) {
 
 .alert--error { background: var(--expense-bg); color: var(--expense); border: 1px solid rgba(255,107,107,0.25); }
 
+.alert--success {
+  background: var(--income-bg);
+  color: var(--income);
+  border: 1px solid rgba(79, 255, 176, 0.25);
+}
+
+.records-flash {
+  margin-bottom: 1rem;
+}
+
+.records-flash[hidden] {
+  display: none !important;
+}
+
 /* ── Action Buttons in table ────────────────────────────────────── */
 .action-btn {
   padding: 4px 10px;

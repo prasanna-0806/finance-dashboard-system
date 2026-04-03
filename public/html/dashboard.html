@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Users — FinanceOS</title>
+  <title>FinanceOS — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
 </head>
 <body>
 
-  <!-- FIX: Sidebar now uses the same markup/classes as dashboard.html and records.html
-       so dashboard.css styles apply correctly and initSidebar() from app.js works -->
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar__brand">
       <span class="brand-mark">F</span>
@@ -20,19 +19,19 @@
     </div>
 
     <nav class="sidebar__nav">
-      <a href="dashboard.html" class="nav-item" data-page="dashboard">
+      <a href="/html/dashboard.html" class="nav-item active" data-page="dashboard">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 10a8 8 0 1 1 16 0A8 8 0 0 1 2 10zm8-3a1 1 0 0 0-1 1v2H7a1 1 0 1 0 0 2h2v2a1 1 0 1 0 2 0v-2h2a1 1 0 1 0 0-2h-2V8a1 1 0 0 0-1-1z"/></svg>
         Dashboard
       </a>
-      <a href="records.html" class="nav-item analyst-only" data-page="records">
+      <a href="/html/records.html" class="nav-item analyst-only" data-page="records">
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm0 4a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z" clip-rule="evenodd"/></svg>
         Records
       </a>
-      <a href="insights.html" class="nav-item analyst-only" data-page="insights">
+      <a href="/html/insights.html" class="nav-item analyst-only" data-page="insights">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-5zm6-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V7zm6-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V4z"/></svg>
         Insights
       </a>
-      <a href="users.html" class="nav-item active admin-only" data-page="users">
+      <a href="/html/users.html" class="nav-item admin-only" data-page="users">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm8 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm-4.07 11c.046-.327.07-.66.07-1a6.97 6.97 0 0 0-1.5-4.33A5 5 0 0 1 19 16v1h-6.07zM6 11a5 5 0 0 1 5 5v1H1v-1a5 5 0 0 1 5-5z"/></svg>
         Users
       </a>
@@ -52,37 +51,77 @@
     </div>
   </aside>
 
-  <!-- Main -->
+  <!-- ── MAIN CONTENT ─────────────────────────────────────── -->
   <main class="main">
     <header class="topbar">
       <div class="topbar__title">
-        <h1>Users</h1>
+        <h1>Overview</h1>
         <span class="topbar__date" id="topbarDate"></span>
       </div>
     </header>
 
-    <section class="records-section">
+    <!-- KPI cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card kpi-card--income">
+        <div class="kpi-label">Total Income</div>
+        <div class="kpi-value" id="kpiIncome">—</div>
+        <div class="kpi-icon">↑</div>
+      </div>
+      <div class="kpi-card kpi-card--expense">
+        <div class="kpi-label">Total Expenses</div>
+        <div class="kpi-value" id="kpiExpenses">—</div>
+        <div class="kpi-icon">↓</div>
+      </div>
+      <div class="kpi-card kpi-card--balance">
+        <div class="kpi-label">Net Balance</div>
+        <div class="kpi-value" id="kpiBalance">—</div>
+        <div class="kpi-icon">◈</div>
+      </div>
+    </section>
+
+    <!-- Charts row -->
+    <section class="charts-row">
+      <div class="chart-card chart-card--wide">
+        <div class="chart-header">
+          <span class="chart-title">Monthly Trend</span>
+          <span class="chart-subtitle">Last 12 months</span>
+        </div>
+        <canvas id="trendChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <span class="chart-title">By Category</span>
+        </div>
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Recent activity -->
+    <section class="recent-section">
+      <div class="section-header">
+        <h2>Recent Activity</h2>
+      </div>
       <div class="activity-table-wrapper">
         <table class="activity-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Joined</th>
-              <th class="text-center">Actions</th>
+              <th>Date</th>
+              <th>Category</th>
+              <th>Notes</th>
+              <th>Type</th>
+              <th class="text-right">Amount</th>
             </tr>
           </thead>
-          <tbody id="usersTableBody">
-            <tr><td colspan="6" class="loading-row">Loading users…</td></tr>
+          <tbody id="recentTableBody">
+            <tr><td colspan="5" class="loading-row">Loading…</td></tr>
           </tbody>
         </table>
       </div>
     </section>
   </main>
 
-  <script src="app.js"></script>
-  <script src="users.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/dashboard.js"></script>
 </body>
 </html>

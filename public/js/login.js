@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // If already logged in, redirect
   if (getToken()) {
-    window.location.href = 'dashboard.html';
+    window.location.href = '/html/dashboard.html';
     return;
   }
 
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       setToken(data.token);
       setUser(data.user);
-      window.location.href = 'dashboard.html';
+      window.location.href = '/html/dashboard.html';
     } catch (err) {
       const msg = err?.data?.error || 'Invalid email or password.';
       showError(msg);

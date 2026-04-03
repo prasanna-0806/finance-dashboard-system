@@ -39,7 +39,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 // ─── Routes ───────────────────────────────────────────────────────────────────
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/login.html'));
+  res.sendFile(path.join(__dirname, '../public/html/login.html'));
 });
 app.use('/api/auth',      authRoutes);
 app.use('/api/users',     userRoutes);
@@ -49,6 +49,13 @@ app.use('/api/dashboard', dashboardRoutes);
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Old flat URLs → /html/… (bookmarks still work)
+['login', 'dashboard', 'records', 'insights', 'users'].forEach((name) => {
+  app.get(`/${name}.html`, (req, res) => {
+    res.redirect(301, `/html/${name}.html`);
+  });
 });
 
 // 404 handler

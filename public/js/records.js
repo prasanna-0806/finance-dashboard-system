@@ -2,6 +2,19 @@
 let currentPage = 1;
 let currentFilters = {};
 let searchDebounceTimer;
+let recordsFlashTimer;
+
+function showRecordsFlash(message) {
+  const el = document.getElementById('recordsFlash');
+  if (!el) return;
+  clearTimeout(recordsFlashTimer);
+  el.textContent = message;
+  el.hidden = false;
+  recordsFlashTimer = setTimeout(() => {
+    el.hidden = true;
+    el.textContent = '';
+  }, 4500);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const user = getUser();
@@ -198,6 +211,7 @@ async function deleteRecord(id) {
   if (!confirm('Soft-delete this record? It can be recovered from the database.')) return;
   try {
     await apiFetch(`/api/records/${id}`, { method: 'DELETE' });
+    showRecordsFlash('Record deleted successfully.');
     loadRecords();
   } catch (e) { alert('Delete failed.'); }
 }
@@ -228,8 +242,10 @@ async function saveRecord() {
   try {
     if (id) {
       await apiFetch(`/api/records/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
+      showRecordsFlash('Record updated successfully.');
     } else {
       await apiFetch('/api/records', { method: 'POST', body: JSON.stringify(body) });
+      showRecordsFlash('Record created successfully.');
     }
     closeModal();
     loadRecords();
