@@ -146,6 +146,16 @@ For development with auto-reload, use `npm run dev`.
 
 ---
 
+## Quick Start (2 minutes)
+
+```
+npm install
+cp .env.example .env
+docker-compose up -d
+npm run migrate
+npm run seed
+npm start
+```
 ## Demo Credentials
 
 | Email | Password | Role |
