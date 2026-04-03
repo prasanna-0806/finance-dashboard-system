@@ -10,7 +10,10 @@ const options = {
         'Backend API for a finance dashboard with role-based access control. ' +
         'Roles: admin (full access), analyst (read + dashboard), viewer (dashboard only).',
     },
-    servers: [{ url: 'http://localhost:3000', description: 'Local development' }],
+    servers: [
+  { url: 'https://finance-dashboard-system-5noe.onrender.com', description: 'Production' },
+  { url: 'http://localhost:3000', description: 'Local development' }
+],
     components: {
       securitySchemes: {
         bearerAuth: {
