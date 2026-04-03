@@ -1,110 +1,113 @@
-# Finance Dashboard Backend
+# FinanceOS — Finance Data Processing and Access Control Backend
 
-A RESTful backend API for a role-based finance dashboard system, built with **Node.js**, **Express**, and **PostgreSQL**. Includes a lightweight HTML/CSS/JS frontend for demonstration.
+A backend system for a finance dashboard with role-based access control, financial records management, and analytics APIs. Built with Node.js, Express, and PostgreSQL.
 
 ---
 
 ## Tech Stack
 
-| Layer | Choice | Reason |
-|-------|--------|--------|
-| Runtime | Node.js + Express | Lightweight, fast to iterate, widely used in production |
-| Database | PostgreSQL (via Docker) | Production-grade relational DB, strong for financial data |
-| Auth | JWT (jsonwebtoken) | Stateless, standard for REST APIs |
-| Validation | express-validator | Declarative, composable input validation |
-| API Docs | Swagger (swagger-jsdoc + swagger-ui-express) | Auto-generated, interactive docs |
-| Password | bcryptjs | Industry-standard hashing (cost factor 12) |
-| Tests | Jest + Supertest | Integration-level API tests |
-
----
-
-## Role Model
-
-| Role | Records (read) | Records (write) | Dashboard | Users | Export CSV |
-|------|:-:|:-:|:-:|:-:|:-:|
-| viewer (1) | ✗ | ✗ | ✓ | ✗ | ✗ |
-| analyst (2) | ✓ | ✗ | ✓ | ✗ | ✓ |
-| admin (3) | ✓ | ✓ | ✓ | ✓ | ✓ |
-
-Role enforcement is handled by a `requireRole(minLevel)` middleware that checks a numeric role hierarchy. Any role at or above the required level is permitted.
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: PostgreSQL
+- **Auth**: JWT (JSON Web Tokens)
+- **Password Hashing**: bcryptjs
+- **Validation**: express-validator
+- **API Docs**: Swagger UI (`/api-docs`)
+- **Rate Limiting**: express-rate-limit
 
 ---
 
 ## Project Structure
 
 ```
-finance-dashboard-system/
+finance-backend/
+├── frontend/               # Static frontend (HTML/CSS/JS)
+│   ├── login.html
+│   ├── dashboard.html
+│   ├── records.html
+│   ├── insights.html
+│   ├── users.html
+│   ├── app.js              # Shared auth + API helpers
+│   ├── dashboard.js
+│   ├── records.js
+│   ├── insights.js
+│   ├── users.js
+│   └── dashboard.css
 ├── src/
+│   ├── app.js              # Express app entry point
 │   ├── db/
-│   │   ├── index.js            # PostgreSQL connection pool
-│   │   ├── migrate.js          # Schema creation (run once)
-│   │   └── seed.js             # Sample data seeder
+│   │   ├── index.js        # PostgreSQL pool
+│   │   ├── migrate.js      # Schema creation
+│   │   └── seed.js         # Demo users + sample records
 │   ├── middleware/
-│   │   ├── auth.js             # JWT verification → req.user
-│   │   └── roleGuard.js        # Role-level access control
+│   │   ├── auth.js         # JWT authentication middleware
+│   │   └── roleGuard.js    # Role-based access control middleware
 │   ├── routes/
-│   │   ├── auth.js             # POST /api/auth/register|login
-│   │   ├── users.js            # Admin user management
-│   │   ├── records.js          # Financial records CRUD + export
-│   │   └── dashboard.js        # Aggregation & analytics
+│   │   ├── auth.js         # /api/auth
+│   │   ├── users.js        # /api/users
+│   │   ├── records.js      # /api/records
+│   │   └── dashboard.js    # /api/dashboard
 │   ├── services/
 │   │   ├── authService.js
 │   │   ├── userService.js
-│   │   ├── recordsService.js   # CRUD + search + CSV export
-│   │   └── dashboardService.js # SQL aggregations
+│   │   ├── recordsService.js
+│   │   └── dashboardService.js
 │   ├── validators/
 │   │   ├── authValidator.js
 │   │   ├── recordsValidator.js
 │   │   └── validate.js
-│   ├── swagger/
-│   │   └── swagger.js
-│   └── app.js                  # Express setup + entry point
-├── frontend/
-│   ├── login.html
-│   ├── dashboard.html
-│   ├── records.html
-│   ├── users.html
-│   ├── dashboard.css           # All styles (dark theme)
-│   ├── app.js                  # Shared: API helper, auth, utils
-│   ├── login.js
-│   ├── dashboard.js            # Charts, KPIs, recent activity
-│   └── records.js              # Search, filter, CRUD, CSV export
-├── tests/
-│   └── api.test.js             # Jest + Supertest integration tests
-├── docker-compose.yml
+│   └── swagger/
+│       └── swagger.js
 ├── .env.example
+├── docker-compose.yml
 └── package.json
 ```
 
 ---
 
-## Getting Started
+## Setup
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org) v18+
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- Node.js v18+
+- PostgreSQL (local install or Docker)
 
-### 1. Clone and install
+### 1. Clone and install dependencies
 
 ```bash
-git clone https://github.com/prasanna-0806/finance-dashboard-system
-cd finance-dashboard-system
 npm install
 ```
 
-### 2. Set up environment
+### 2. Configure environment
 
 ```bash
 cp .env.example .env
-# Defaults already match docker-compose.yml — no edits needed for local dev
+```
+
+Edit `.env` with your database credentials:
+
+```env
+PORT=3000
+
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=finance_user
+DB_PASSWORD=finance_pass
+DB_NAME=finance_db
+
+JWT_SECRET=your_jwt_secret_here
+JWT_EXPIRES_IN=7d
 ```
 
 ### 3. Start PostgreSQL
 
+**Option A — Docker (recommended):**
 ```bash
-docker compose up -d
+docker-compose up -d
 ```
+
+**Option B — Local PostgreSQL:**
+Create the database and user manually to match your `.env` values.
 
 ### 4. Run migrations
 
@@ -112,156 +115,215 @@ docker compose up -d
 npm run migrate
 ```
 
-### 5. Seed sample data *(optional but recommended)*
+Creates the `users` and `financial_records` tables with indexes and triggers.
+
+### 5. Seed demo data
 
 ```bash
 npm run seed
 ```
 
-This creates 3 demo users and ~50 realistic financial records so the dashboard looks populated immediately.
-
-| Email | Password | Role |
-|-------|----------|------|
-| admin@finance.dev | Admin@1234 | admin |
-| analyst@finance.dev | Analyst@1234 | analyst |
-| viewer@finance.dev | Viewer@1234 | viewer |
+Creates 3 demo users (one per role) and 37 sample financial records.
 
 ### 6. Start the server
 
 ```bash
-npm run dev    # development (auto-restart)
-npm start      # production
+npm start
 ```
 
-- API: **http://localhost:3000**
-- Swagger UI: **http://localhost:3000/api-docs**
-- Frontend: open `frontend/login.html` in your browser
+Server runs at `http://localhost:3000`
+API docs at `http://localhost:3000/api-docs`
+
+> For development with auto-reload: `npm run dev`
+
+---
+
+## Demo Credentials
+
+| Email | Password | Role |
+|---|---|---|
+| admin@finance.dev | Admin@1234 | Admin |
+| analyst@finance.dev | Analyst@1234 | Analyst |
+| viewer@finance.dev | Viewer@1234 | Viewer |
+
+---
+
+## Role Permissions
+
+| Feature | Viewer | Analyst | Admin |
+|---|:---:|:---:|:---:|
+| View dashboard & KPIs | ✓ | ✓ | ✓ |
+| View records | ✗ | ✓ | ✓ |
+| View insights & trends | ✗ | ✓ | ✓ |
+| Export records as CSV | ✗ | ✓ | ✓ |
+| Create / edit / delete records | ✗ | ✗ | ✓ |
+| Manage users (roles, status) | ✗ | ✗ | ✓ |
+
+Role hierarchy is enforced at the backend middleware level — not just the UI. Every API route checks the authenticated user's role before processing the request.
 
 ---
 
 ## API Reference
 
+Full interactive documentation is available at **`http://localhost:3000/api-docs`** (Swagger UI).
+
 ### Auth
 
 | Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | /api/auth/register | Public | Register a new user |
-| POST | /api/auth/login | Public | Login, receive JWT |
+|---|---|---|---|
+| POST | `/api/auth/register` | Public | Register a new user |
+| POST | `/api/auth/login` | Public | Login and receive a JWT |
 
-### Users *(admin only)*
+### Records
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/users | List all users |
-| GET | /api/users/:id | Get user by ID |
-| PATCH | /api/users/:id/role | Change a user's role |
-| PATCH | /api/users/:id/status | Activate / deactivate |
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/api/records` | Analyst+ | List records with filters and pagination |
+| GET | `/api/records/:id` | Analyst+ | Get a single record |
+| POST | `/api/records` | Admin | Create a new record |
+| PATCH | `/api/records/:id` | Admin | Update a record |
+| DELETE | `/api/records/:id` | Admin | Soft-delete a record |
+| GET | `/api/records/export` | Analyst+ | Export filtered records as CSV |
 
-### Financial Records
-
-| Method | Endpoint | Min Role | Description |
-|--------|----------|----------|-------------|
-| GET | /api/records | analyst | List with filters + search + pagination |
-| GET | /api/records/export | analyst | Download filtered records as CSV |
-| GET | /api/records/:id | analyst | Get single record |
-| POST | /api/records | admin | Create a record |
-| PATCH | /api/records/:id | admin | Update a record |
-| DELETE | /api/records/:id | admin | Soft-delete |
-
-**Filter / search params for `GET /api/records`:**
+**Supported filters for GET /api/records:**
 
 | Param | Type | Description |
-|-------|------|-------------|
-| `search` | string | Full-text search across `notes`, `category`, `description` |
+|---|---|---|
 | `type` | `income` \| `expense` | Filter by type |
-| `category` | string | Partial match (case-insensitive) |
-| `dateFrom` | ISO 8601 date | Records on or after this date |
-| `dateTo` | ISO 8601 date | Records on or before this date |
+| `category` | string | Filter by category (partial match) |
+| `dateFrom` | YYYY-MM-DD | Records on or after this date |
+| `dateTo` | YYYY-MM-DD | Records on or before this date |
+| `search` | string | Search notes and category |
 | `page` | integer | Page number (default: 1) |
-| `limit` | integer | Results per page (default: 20, max: 100) |
+| `limit` | integer | Records per page (default: 15, max: 100) |
 
-All params work on `/api/records/export` too.
+### Dashboard
 
-### Dashboard *(analyst + admin)*
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| GET | `/api/dashboard/summary` | Viewer+ | Total income, expenses, net balance |
+| GET | `/api/dashboard/categories` | Viewer+ | Totals grouped by category and type |
+| GET | `/api/dashboard/trends/monthly` | Viewer+ | Income vs expenses for last 12 months |
+| GET | `/api/dashboard/trends/weekly` | Viewer+ | Income vs expenses for last 12 weeks |
+| GET | `/api/dashboard/recent` | Viewer+ | Most recent financial activity |
+
+### Users (Admin only)
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | /api/dashboard/summary | Total income, expenses, net balance |
-| GET | /api/dashboard/categories | Totals grouped by category |
-| GET | /api/dashboard/trends/monthly | Last 12 months income vs expense |
-| GET | /api/dashboard/trends/weekly | Last 12 weeks income vs expense |
-| GET | /api/dashboard/recent | Recent activity feed |
+|---|---|---|
+| GET | `/api/users` | List all users (paginated) |
+| GET | `/api/users/:id` | Get a user by ID |
+| PATCH | `/api/users/:id/role` | Update a user's role |
+| PATCH | `/api/users/:id/status` | Activate or deactivate a user |
 
 ---
 
-## Authentication
+## Access Control Implementation
 
-All protected routes require a Bearer token:
+Authentication and authorization are handled by two middleware functions applied to every protected route:
 
+**`authenticate`** (`src/middleware/auth.js`)
+- Verifies the JWT from the `Authorization: Bearer <token>` header
+- Fetches fresh user data from the database on every request — so deactivated accounts are blocked immediately even if their token is still valid
+- Returns `401` if the token is missing, invalid, or expired
+- Returns `403` if the account is deactivated
+
+**`requireRole`** (`src/middleware/roleGuard.js`)
+- Enforces a minimum role level using a numeric hierarchy: `viewer=1`, `analyst=2`, `admin=3`
+- Returns `403` with a clear error message if the user's role is insufficient
+
+Example usage in a route:
+```js
+router.post('/', authenticate, requireRole('admin'), ...)   // admin only
+router.get('/',  authenticate, requireRole('analyst'), ...) // analyst and above
+router.get('/',  authenticate, requireRole('viewer'), ...)  // all authenticated users
 ```
-Authorization: Bearer <token>
-```
-
-Obtain the token from `POST /api/auth/login`.
 
 ---
 
-## Running Tests
+## Validation and Error Handling
 
-```bash
-# Requires the server to be running and seed data to be present
-npm run seed
-npm test
-```
+All inputs are validated using `express-validator` before reaching any service logic.
 
-Tests cover: auth (login, validation, wrong credentials), role-based access control, search behaviour, full CRUD lifecycle, input validation, dashboard access, and CSV export.
+**Auth validation:**
+- `name` — required, non-empty
+- `email` — must be a valid email, normalised before storage
+- `password` — minimum 6 characters
+- `role` — optional, must be one of `admin`, `analyst`, `viewer`
 
----
+**Record validation:**
+- `amount` — required, must be a positive number (`> 0`)
+- `type` — required, must be `income` or `expense`
+- `category` — required, non-empty string
+- `date` — required, must be a valid ISO 8601 date (`YYYY-MM-DD`)
+- `notes` — optional string
+- `id` params — must be valid UUIDs
 
-## Error Response Format
-
-All errors follow a consistent shape:
-
-```json
-{ "error": "Description of what went wrong" }
-```
-
-| Status | Meaning |
-|--------|---------|
-| 400 | Bad request / no fields to update |
-| 401 | Missing, expired, or invalid token |
-| 403 | Insufficient role or deactivated account |
-| 404 | Resource not found |
-| 409 | Conflict (e.g. duplicate email) |
-| 422 | Validation errors (array) |
-| 429 | Rate limit exceeded (100 req / 15 min) |
-| 500 | Internal server error |
+**Error responses:**
+- `400` — bad request
+- `401` — missing/invalid/expired token
+- `403` — insufficient role or deactivated account
+- `404` — resource not found
+- `409` — conflict (e.g. email already in use)
+- `422` — validation failed (returns array of field-level error messages)
+- `429` — rate limit exceeded (100 requests per 15 minutes per IP)
+- `500` — internal server error (details logged server-side only)
 
 ---
 
-## Assumptions & Design Decisions
+## Data Model
 
-1. **No ORM** — Raw SQL via `pg` was chosen intentionally to demonstrate direct database knowledge and control over query behaviour.
+### `users`
 
-2. **Soft deletes** — Records are never physically removed; a `deleted_at` timestamp is set instead. This preserves audit history, which is standard practice in financial systems.
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID | Primary key, auto-generated |
+| `name` | VARCHAR(100) | Required |
+| `email` | VARCHAR(255) | Unique |
+| `password` | TEXT | bcrypt hashed (12 rounds) |
+| `role` | ENUM | `viewer`, `analyst`, `admin` |
+| `is_active` | BOOLEAN | Default `true` |
+| `created_at` | TIMESTAMPTZ | Auto-set |
+| `updated_at` | TIMESTAMPTZ | Auto-updated via trigger |
 
-3. **Role hierarchy** — Roles are assigned a numeric level (`viewer=1`, `analyst=2`, `admin=3`). Guards use `>= minLevel`, keeping access control logic simple and easy to extend.
+### `financial_records`
 
-4. **Fresh DB fetch on every request** — The auth middleware re-queries the database on each request rather than trusting the JWT payload alone. This ensures deactivated users are blocked immediately without waiting for token expiry.
+| Column | Type | Notes |
+|---|---|---|
+| `id` | UUID | Primary key, auto-generated |
+| `amount` | NUMERIC(15,2) | Must be `> 0`, enforced at DB level |
+| `type` | ENUM | `income` or `expense` |
+| `category` | VARCHAR(100) | Required |
+| `date` | DATE | Required |
+| `notes` | TEXT | Optional |
+| `created_by` | UUID | Foreign key → `users.id` |
+| `deleted_at` | TIMESTAMPTZ | `NULL` = active, set = soft-deleted |
+| `created_at` | TIMESTAMPTZ | Auto-set |
+| `updated_at` | TIMESTAMPTZ | Auto-updated via trigger |
 
-5. **Viewer dashboard access** — Viewers can access dashboard summary endpoints but cannot see raw records, matching a real-world pattern where executives receive high-level summaries without raw transaction access.
-
-6. **Search implementation** — `ILIKE` on `notes`, `category`, and `description` fields. Chosen for simplicity; a full-text index (`tsvector`) would be the production upgrade path for large datasets.
-
-7. **CSV export** — Streaming a SQL query directly to a CSV response. No temp files, no memory accumulation. The same filter params from `GET /api/records` apply.
-
-8. **Rate limiting** — 100 requests per 15 minutes per IP, applied globally. Can be tightened per-route in production.
+Indexes are created on `type`, `category`, and `date` (filtered to non-deleted rows) for efficient dashboard queries.
 
 ---
 
-## Stopping the database
+## Optional Enhancements Implemented
 
-```bash
-docker compose down       # stop containers, keep data
-docker compose down -v    # stop containers and wipe data
-```
+- **JWT Authentication** — stateless auth with configurable expiry
+- **Soft Delete** — records are never permanently removed; `deleted_at` is set instead
+- **Pagination** — all list endpoints support `page` and `limit` params
+- **Search** — full-text search across `notes` and `category` fields
+- **CSV Export** — analysts and admins can export filtered records
+- **Rate Limiting** — 100 requests per 15 minutes per IP
+- **Swagger API Docs** — interactive docs at `/api-docs`
+- **Frontend** — fully functional multi-page dashboard served as static files
+
+---
+
+## Assumptions and Tradeoffs
+
+- **Notes vs Description**: The assignment mentions "notes or description" as a record field. These were consolidated into a single `notes` field to keep the schema clean and avoid redundancy.
+
+- **Role assignment on register**: The register endpoint accepts an optional `role` field. In a production system this would be admin-only. For this assessment it is left open to make testing all three roles easier without needing admin intervention.
+
+- **Fresh DB lookup on every request**: The `authenticate` middleware re-fetches the user from the database on every protected request instead of trusting the JWT payload alone. This ensures deactivated accounts are blocked immediately rather than waiting for the token to expire. The tradeoff is one extra DB query per request.
+
+- **In-memory rate limiting**: The rate limiter uses in-memory storage, so limits reset if the server restarts. A production system would use Redis for this.
