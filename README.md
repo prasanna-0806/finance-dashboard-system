@@ -151,7 +151,7 @@ Creates the `users` and `financial_records` tables with indexes and triggers.
 npm run seed
 ```
 
-Creates 3 demo users (one per role) and sample financial records.
+Creates 3 demo users (one per role) and 37 sample financial records across 12 categories spanning the last 6 months.
 
 ### 6. Start the server
 
@@ -204,7 +204,7 @@ npm test
 
 > **Before running tests locally**, update `public/js/app.js` line 1 to `const API = 'http://localhost:3000'`, then revert it back to the Render URL after testing.
 
-PostgreSQL must be running with schema migrated and demo users present (`npm run migrate` and `npm run seed`). Integration tests live in **`src/tests/api.test.js`** (Jest + Supertest) and cover 19 test cases across auth, role access control, CRUD, validation, dashboard, and CSV export.
+PostgreSQL must be running with schema migrated and demo users present (`npm run migrate` and `npm run seed`). Integration tests live in **`src/tests/api.test.js`** (Jest + Supertest) and cover 19 test cases covering auth, role access control, CRUD operations, input validation, dashboard summary, and CSV export.
 
 ---
 
