@@ -69,7 +69,7 @@ body:not(.login-page) {
   position: relative;
   width: 100%;
   overflow: hidden;
-  min-height: 340px; 
+  min-height: 320px; 
 }
 
 /* Panels */
@@ -735,10 +735,12 @@ body:not(.login-page) {
 }
 
 .login-hint {
-  font-size: 0.82rem;   /* increased */
-  color: var(--text-secondary); /* better contrast */
-  line-height: 1.5;
-  padding: 10px 12px;
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  padding: 12px;
+  background: var(--bg-3);
+  border-radius: var(--radius-sm);
 }
 
 .login-hint code {
