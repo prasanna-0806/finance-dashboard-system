@@ -248,7 +248,7 @@ Full interactive documentation is available at **https://finance-dashboard-syste
 | Method | Endpoint | Access | Description |
 |---|---|---|---|
 | GET | `/api/dashboard/summary` | Viewer+ | Total income, expenses, net balance |
-| GET | `/api/dashboard/categories` | Viewer+ | Totals grouped by category and type |
+| GET | `/api/dashboard/categories` | Viewer+ | Expense totals grouped by category |
 | GET | `/api/dashboard/trends/monthly` | Viewer+ | Income vs expenses for last 12 months |
 | GET | `/api/dashboard/trends/weekly` | Viewer+ | Income vs expenses for last 12 weeks |
 | GET | `/api/dashboard/recent` | Viewer+ | Most recent financial activity |
