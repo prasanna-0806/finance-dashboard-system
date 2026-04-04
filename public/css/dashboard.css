@@ -69,7 +69,7 @@ body:not(.login-page) {
   position: relative;
   width: 100%;
   overflow: hidden;
-  min-height: 320px; 
+  min-height: 300px; 
 }
 
 /* Panels */
