@@ -735,12 +735,10 @@ body:not(.login-page) {
 }
 
 .login-hint {
-  font-size: 0.725rem;
-  color: var(--text-dim);
-  line-height: 1.7;
-  padding: 12px;
-  background: var(--bg-3);
-  border-radius: var(--radius-sm);
+  font-size: 0.82rem;   /* increased */
+  color: var(--text-secondary); /* better contrast */
+  line-height: 1.5;
+  padding: 10px 12px;
 }
 
 .login-hint code {
