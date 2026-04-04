@@ -66,10 +66,8 @@ body:not(.login-page) {
 
 /* Slider container */
 .form-slider {
-  position: relative;
-  width: 100%;
-  overflow: hidden;
-  height: 298px;
+  min-height: 360px;
+  transition: height 0.3s ease;
 }
 
 /* Panels */
