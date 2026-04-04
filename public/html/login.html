@@ -37,17 +37,17 @@
       </div>
 
       <!-- LOGIN FORM -->
-      <div id="loginView" style="margin-top:0.75rem;">
+      <div id="loginView">
         <div id="loginError" class="alert alert--error" style="display:none"></div>
         <div class="form-group">
           <label>Email</label>
           <input type="email" id="loginEmail" placeholder="you@finance.dev" autocomplete="email" />
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-top:0.80rem;">
           <label>Password</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" />
+          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" style="margin-bottom:0.80rem;"/>
         </div>
-        <button class="btn btn--primary btn--full" id="loginBtn">Sign In</button>
+        <button class="btn btn--primary btn--full" id="loginBtn" style="margin-bottom:0.75rem">Sign In</button>
         <div class="login-hint">
           <span>Demo accounts:</span>
           <code>admin@finance.dev</code> · <code>analyst@finance.dev</code> · <code>viewer@finance.dev</code><br/>
@@ -56,18 +56,18 @@
       </div>
 
       <!-- REGISTER FORM -->
-      <div id="registerView" style="display:none; margin-top:0.75rem;">
+      <div id="registerView" style="display:none;>
         <div id="registerError" class="alert alert--error" style="display:none"></div>
         <div id="registerSuccess" class="alert alert--success" style="display:none"></div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:0.80rem;">
           <label>Name</label>
           <input type="text" id="regName" placeholder="Your name" />
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:0.80rem;">
           <label>Email</label>
           <input type="email" id="regEmail" placeholder="you@example.com" />
         </div>
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom:0.80rem;">
           <label>Password</label>
           <input type="password" id="regPassword" placeholder="Min. 6 characters" />
         </div>
