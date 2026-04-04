@@ -19,7 +19,6 @@ const handleValidation = (req, res, next) => {
   next();
 };
 
-
 /**
  * @swagger
  * /api/records/export:
@@ -29,18 +28,10 @@ const handleValidation = (req, res, next) => {
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: type
- *         schema: { type: string, enum: [income, expense] }
- *       - in: query
- *         name: category
- *         schema: { type: string }
- *       - in: query
- *         name: dateFrom
- *         schema: { type: string, format: date }
- *       - in: query
- *         name: dateTo
- *         schema: { type: string, format: date }
+ *       - $ref: '#/components/parameters/typeParam'
+ *       - $ref: '#/components/parameters/categoryParam'
+ *       - $ref: '#/components/parameters/dateFromParam'
+ *       - $ref: '#/components/parameters/dateToParam'
  *     responses:
  *       200:
  *         description: CSV file download
@@ -62,7 +53,6 @@ router.get(
     }
   }
 );
-
 /**
  * @swagger
  * /api/records:
@@ -72,27 +62,13 @@ router.get(
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - in: query
- *         name: type
- *         schema: { type: string, enum: [income, expense] }
- *       - in: query
- *         name: category
- *         schema: { type: string }
- *       - in: query
- *         name: dateFrom
- *         schema: { type: string, format: date }
- *       - in: query
- *         name: dateTo
- *         schema: { type: string, format: date }
- *       - in: query
- *         name: search
- *         schema: { type: string }
- *       - in: query
- *         name: page
- *         schema: { type: integer, default: 1 }
- *       - in: query
- *         name: limit
- *         schema: { type: integer, default: 20 }
+ *       - $ref: '#/components/parameters/typeParam'
+ *       - $ref: '#/components/parameters/categoryParam'
+ *       - $ref: '#/components/parameters/dateFromParam'
+ *       - $ref: '#/components/parameters/dateToParam'
+ *       - $ref: '#/components/parameters/searchParam'
+ *       - $ref: '#/components/parameters/pageParam'
+ *       - $ref: '#/components/parameters/limitParam'
  *     responses:
  *       200:
  *         description: Paginated list of records
