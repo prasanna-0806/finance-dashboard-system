@@ -1,4 +1,4 @@
-const API = 'http://localhost:3000';
+const API = 'https://finance-dashboard-system-5noe.onrender.com';
 
 // ── Token helpers ────────────────────────────────────────────────
 function getToken()        { return localStorage.getItem('fin_token'); }
