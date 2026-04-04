@@ -1,11 +1,32 @@
+// login.js
 document.addEventListener('DOMContentLoaded', () => {
   if (getToken()) {
     window.location.href = '/html/dashboard.html';
     return;
   }
 
-  // ── Login ──
-  const loginView     = document.getElementById('loginView');
+  const loginView    = document.getElementById('loginView');
+  const registerView = document.getElementById('registerView');
+  const tabLogin     = document.getElementById('tabLogin');
+  const tabRegister  = document.getElementById('tabRegister');
+
+  function switchTab(tab) {
+    if (tab === 'login') {
+      loginView.style.display = 'block';
+      registerView.style.display = 'none';
+      tabLogin.className = 'tab-btn active';
+      tabRegister.className = 'tab-btn inactive';
+    } else {
+      loginView.style.display = 'none';
+      registerView.style.display = 'block';
+      tabLogin.className = 'tab-btn inactive';
+      tabRegister.className = 'tab-btn active';
+    }
+  }
+
+  tabLogin.addEventListener('click', () => switchTab('login'));
+  tabRegister.addEventListener('click', () => switchTab('register'));
+
   const emailInput    = document.getElementById('loginEmail');
   const passwordInput = document.getElementById('loginPassword');
   const loginBtn      = document.getElementById('loginBtn');
@@ -38,8 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
   loginBtn.addEventListener('click', doLogin);
   passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
-  // ── Register ──
-  const registerView    = document.getElementById('registerView');
   const regNameInput    = document.getElementById('regName');
   const regEmailInput   = document.getElementById('regEmail');
   const regPassInput    = document.getElementById('regPassword');
@@ -47,25 +66,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const registerError   = document.getElementById('registerError');
   const registerSuccess = document.getElementById('registerSuccess');
 
-  document.getElementById('showRegister').addEventListener('click', e => {
-    e.preventDefault();
-    loginView.style.display = 'none';
-    registerView.style.display = 'block';
-  });
-
-  document.getElementById('showLogin').addEventListener('click', e => {
-    e.preventDefault();
-    registerView.style.display = 'none';
-    loginView.style.display = 'block';
-  });
-
   async function doRegister() {
     registerError.style.display = 'none';
     registerSuccess.style.display = 'none';
     const name     = regNameInput.value.trim();
     const email    = regEmailInput.value.trim();
     const password = regPassInput.value;
-    if (!name || !email || !password) { registerError.textContent = 'All fields are required.'; registerError.style.display = 'block'; return; }
+    if (!name || !email || !password) {
+      registerError.textContent = 'All fields are required.';
+      registerError.style.display = 'block';
+      return;
+    }
     registerBtn.textContent = 'Creating…';
     registerBtn.disabled = true;
     try {
@@ -73,21 +84,18 @@ document.addEventListener('DOMContentLoaded', () => {
         method: 'POST',
         body: JSON.stringify({ name, email, password }),
       });
-      registerSuccess.textContent = 'Account created! You can now sign in.';
+      registerSuccess.textContent = 'Account created! Signing you in…';
       registerSuccess.style.display = 'block';
-      registerBtn.textContent = 'Create Account';
-      registerBtn.disabled = false;
       setTimeout(() => {
-        registerView.style.display = 'none';
-        loginView.style.display = 'block';
         emailInput.value = email;
-      }, 1500);
+        switchTab('login');
+      }, 1200);
     } catch (err) {
       registerError.textContent = err?.data?.error || 'Registration failed.';
       registerError.style.display = 'block';
-      registerBtn.textContent = 'Create Account';
-      registerBtn.disabled = false;
     }
+    registerBtn.textContent = 'Create Account';
+    registerBtn.disabled = false;
   }
 
   registerBtn.addEventListener('click', doRegister);
