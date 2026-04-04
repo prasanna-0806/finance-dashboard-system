@@ -3,7 +3,7 @@
 // Requires: npm install --save-dev jest supertest
 
 const request = require('supertest');
-const app = require('../src/app');
+const app = require('../app');
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 let adminToken, analystToken, viewerToken;
@@ -191,9 +191,9 @@ describe('GET /api/dashboard/summary', () => {
       .set('Authorization', `Bearer ${analystToken}`);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty('totalIncome');
-    expect(res.body).toHaveProperty('totalExpenses');
-    expect(res.body).toHaveProperty('netBalance');
+   expect(res.body).toHaveProperty('total_income');
+expect(res.body).toHaveProperty('total_expenses');
+expect(res.body).toHaveProperty('net_balance');
   });
 
   test('viewer can view dashboard summary', async () => {

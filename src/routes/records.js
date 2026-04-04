@@ -48,7 +48,7 @@ const handleValidation = (req, res, next) => {
 router.get(
   '/export',
   authenticate,
-  requireRole(2), // analyst+
+  requireRole('analyst'),
   async (req, res) => {
     try {
       const csv = await getRecordsForExport(req.query);
@@ -100,7 +100,7 @@ router.get(
 router.get(
   '/',
   authenticate,
-  requireRole(2),
+ requireRole('analyst'),
   [
     query('type').optional().isIn(['income', 'expense']),
     query('page').optional().isInt({ min: 1 }),
@@ -144,7 +144,7 @@ router.get(
 router.get(
   '/:id',
   authenticate,
-  requireRole(2),
+  requireRole('analyst'),
   // FIX: was isInt() — UUIDs are not integers, causing all single-record fetches to 422
   [param('id').isUUID(), handleValidation],
   async (req, res) => {
@@ -185,7 +185,7 @@ router.get(
 router.post(
   '/',
   authenticate,
-  requireRole(3),
+ requireRole('admin'),
   [
     body('amount').isFloat({ min: 0.01 }),
     body('type').isIn(['income', 'expense']),
@@ -237,7 +237,7 @@ router.post(
 router.patch(
   '/:id',
   authenticate,
-  requireRole(3),
+  requireRole('admin'),
   [
     // FIX: was isInt() — replaced with isUUID()
     param('id').isUUID(),
@@ -280,7 +280,7 @@ router.patch(
 router.delete(
   '/:id',
   authenticate,
-  requireRole(3),
+  requireRole('admin'),
   // FIX: was isInt() — replaced with isUUID()
   [param('id').isUUID(), handleValidation],
   async (req, res) => {
