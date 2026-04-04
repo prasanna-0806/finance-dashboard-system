@@ -188,7 +188,7 @@ function openModal(record = null) {
   document.getElementById('recordId').value          = record?.id || '';
   document.getElementById('fieldAmount').value       = record?.amount || '';
   document.getElementById('fieldType').value         = record?.type || 'income';
-  document.getElementById('fieldCategory').value     = record?.category || '';
+  updateCategories(record?.category || '');
   // FIX: was '' for new records — blank date fails isISO8601() validation on the backend.
   // Default to today so the field is always pre-filled when adding a new record.
   document.getElementById('fieldDate').value         = record?.date ? record.date.split('T')[0] : new Date().toISOString().split('T')[0];
