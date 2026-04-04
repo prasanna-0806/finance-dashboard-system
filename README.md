@@ -21,7 +21,7 @@ A backend system for a finance dashboard with role-based access control, financi
 | analyst@finance.dev | Analyst@1234 | Analyst |
 | viewer@finance.dev | Viewer@1234 | Viewer |
 
-> New accounts can be registered via the **Register** tab on the login page or via `POST /api/auth/register`. New users are assigned the `viewer` role by default, and role upgrades must be performed by an admin (e.g., `admin@finance.dev`).
+>New accounts can be registered via the Register tab on the login page or through the POST /api/auth/register endpoint. By default, all new users are assigned the viewer role. Admin users (e.g., admin@finance.dev) can upgrade other users to analyst or admin roles. Any user promoted to admin gains the same privileges and can manage roles for other users.
  
 ---
 
