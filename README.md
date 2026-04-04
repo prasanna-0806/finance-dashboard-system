@@ -198,12 +198,13 @@ Role hierarchy is enforced at the backend middleware level — not just the UI. 
 ---
 
 ## Running Tests
-
 ```bash
 npm test
 ```
 
-PostgreSQL must be running with schema migrated and demo users present (`npm run migrate` and `npm run seed`). Integration tests live in **`src/tests/api.test.js`** (Jest + Supertest).
+> **Before running tests locally**, update `public/js/app.js` line 1 to `const API = 'http://localhost:3000'`, then revert it back to the Render URL after testing.
+
+PostgreSQL must be running with schema migrated and demo users present (`npm run migrate` and `npm run seed`). Integration tests live in **`src/tests/api.test.js`** (Jest + Supertest) and cover 19 test cases across auth, role access control, CRUD, validation, dashboard, and CSV export.
 
 ---
 
