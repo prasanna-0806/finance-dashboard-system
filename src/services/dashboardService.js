@@ -22,6 +22,7 @@ const getCategoryTotals = async () => {
       COUNT(*)::int AS count
     FROM financial_records
     WHERE deleted_at IS NULL
+    AND type = 'expense'
     GROUP BY category, type
     ORDER BY total DESC
   `);
