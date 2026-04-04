@@ -8,7 +8,7 @@ A backend system for a finance dashboard with role-based access control, financi
 
 | | URL |
 |---|---|
-| **Frontend** | https://finance-dashboard-system-5noe.onrender.com/html/login.html |
+| **Demo with Frontend** | https://finance-dashboard-system-5noe.onrender.com/html/login.html |
 | **API Docs (Swagger)** | https://finance-dashboard-system-5noe.onrender.com/api-docs |
 
 > ⚠️ Hosted on Render free tier — first request may take 30–50 seconds to wake up.
