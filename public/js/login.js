@@ -1,103 +1,153 @@
+
 // login.js
 document.addEventListener('DOMContentLoaded', () => {
+  // Redirect if already logged in
   if (getToken()) {
     window.location.href = '/html/dashboard.html';
     return;
   }
 
-  const loginView    = document.getElementById('loginView');
-  const registerView = document.getElementById('registerView');
-  const tabLogin     = document.getElementById('tabLogin');
-  const tabRegister  = document.getElementById('tabRegister');
+  //  Elements
+  const slider      = document.querySelector('.form-slider');
+  const tabLogin    = document.getElementById('tabLogin');
+  const tabRegister = document.getElementById('tabRegister');
 
+  const loginError       = document.getElementById('loginError');
+  const registerError    = document.getElementById('registerError');
+  const registerSuccess  = document.getElementById('registerSuccess');
+
+  //  Safety check
+  if (!slider) {
+    console.error('Slider not found. Check your HTML structure.');
+    return;
+  }
+
+  //  Switch tabs (SLIDER LOGIC)
   function switchTab(tab) {
+    // Clear messages
+    loginError.style.display = 'none';
+    registerError.style.display = 'none';
+    registerSuccess.style.display = 'none';
+
     if (tab === 'login') {
-      loginView.style.display = 'block';
-      registerView.style.display = 'none';
-      tabLogin.className = 'tab-btn active';
-      tabRegister.className = 'tab-btn inactive';
+      slider.classList.remove('show-register');
+
+      tabLogin.classList.add('active');
+      tabLogin.classList.remove('inactive');
+
+      tabRegister.classList.remove('active');
+      tabRegister.classList.add('inactive');
     } else {
-      loginView.style.display = 'none';
-      registerView.style.display = 'block';
-      tabLogin.className = 'tab-btn inactive';
-      tabRegister.className = 'tab-btn active';
+      slider.classList.add('show-register');
+
+      tabRegister.classList.add('active');
+      tabRegister.classList.remove('inactive');
+
+      tabLogin.classList.remove('active');
+      tabLogin.classList.add('inactive');
     }
   }
 
   tabLogin.addEventListener('click', () => switchTab('login'));
   tabRegister.addEventListener('click', () => switchTab('register'));
 
+  //  LOGIN
   const emailInput    = document.getElementById('loginEmail');
   const passwordInput = document.getElementById('loginPassword');
   const loginBtn      = document.getElementById('loginBtn');
-  const errorEl       = document.getElementById('loginError');
 
-  function showError(msg) { errorEl.textContent = msg; errorEl.style.display = 'block'; }
+  function showLoginError(msg) {
+    loginError.textContent = msg;
+    loginError.style.display = 'block';
+  }
 
   async function doLogin() {
-    errorEl.style.display = 'none';
+    loginError.style.display = 'none';
+
     const email    = emailInput.value.trim();
     const password = passwordInput.value;
-    if (!email || !password) { showError('Please enter email and password.'); return; }
+
+    if (!email || !password) {
+      showLoginError('Please enter email and password.');
+      return;
+    }
+
     loginBtn.textContent = 'Signing in…';
     loginBtn.disabled = true;
+
     try {
       const data = await apiFetch('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
+
       setToken(data.token);
       setUser(data.user);
+
       window.location.href = '/html/dashboard.html';
     } catch (err) {
-      showError(err?.data?.error || 'Invalid email or password.');
+      showLoginError(err?.data?.error || 'Invalid email or password.');
       loginBtn.textContent = 'Sign In';
       loginBtn.disabled = false;
     }
   }
 
   loginBtn.addEventListener('click', doLogin);
-  passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  passwordInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
 
-  const regNameInput    = document.getElementById('regName');
-  const regEmailInput   = document.getElementById('regEmail');
-  const regPassInput    = document.getElementById('regPassword');
-  const registerBtn     = document.getElementById('registerBtn');
-  const registerError   = document.getElementById('registerError');
-  const registerSuccess = document.getElementById('registerSuccess');
+  //  REGISTER
+  const regNameInput  = document.getElementById('regName');
+  const regEmailInput = document.getElementById('regEmail');
+  const regPassInput  = document.getElementById('regPassword');
+  const registerBtn   = document.getElementById('registerBtn');
 
   async function doRegister() {
     registerError.style.display = 'none';
     registerSuccess.style.display = 'none';
+
     const name     = regNameInput.value.trim();
     const email    = regEmailInput.value.trim();
     const password = regPassInput.value;
+
     if (!name || !email || !password) {
       registerError.textContent = 'All fields are required.';
       registerError.style.display = 'block';
       return;
     }
+
     registerBtn.textContent = 'Creating…';
     registerBtn.disabled = true;
+
     try {
       await apiFetch('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({ name, email, password }),
       });
+
       registerSuccess.textContent = 'Account created! Signing you in…';
       registerSuccess.style.display = 'block';
+
+      //  Smooth switch to login
       setTimeout(() => {
         emailInput.value = email;
+        passwordInput.value = '';
         switchTab('login');
       }, 1200);
+
     } catch (err) {
       registerError.textContent = err?.data?.error || 'Registration failed.';
       registerError.style.display = 'block';
     }
+
     registerBtn.textContent = 'Create Account';
     registerBtn.disabled = false;
   }
 
   registerBtn.addEventListener('click', doRegister);
-  regPassInput.addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
+  regPassInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doRegister();
+  });
 });
+

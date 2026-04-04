@@ -31,43 +31,49 @@
         <button id="tabRegister" class="tab-btn inactive">Register</button>
       </div>
 
-      <!-- LOGIN -->
-      <div id="loginView" style="display:flex; flex-direction:column; gap:14px;">
-        <div id="loginError" class="alert alert--error" style="display:none"></div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="loginEmail" placeholder="you@finance.dev" autocomplete="email" />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" />
-        </div>
-        <button class="btn btn--primary btn--full" id="loginBtn">Sign In</button>
-        <div class="login-hint">
-          <span>Demo accounts:</span>
-          <code>admin@finance.dev</code> · <code>analyst@finance.dev</code> · <code>viewer@finance.dev</code><br/>
-          <span>Password pattern: <code>Role@1234</code> (e.g. <code>Admin@1234</code>)</span>
-        </div>
-      </div>
+      <div class="form-slider">
 
-      <!-- REGISTER -->
-      <div id="registerView" style="display:flex; flex-direction:column; gap:14px;">
-        <div id="registerError" class="alert alert--error" style="display:none"></div>
-        <div id="registerSuccess" class="alert alert--success" style="display:none"></div>
-        <div class="form-group">
-          <label>Name</label>
-          <input type="text" id="regName" placeholder="Your name" />
-        </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="regEmail" placeholder="you@example.com" />
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="regPassword" placeholder="Min. 6 characters" />
-        </div>
-        <button class="btn btn--primary btn--full" id="registerBtn">Create Account</button>
-      </div>
+  <!-- LOGIN -->
+  <div class="form-panel" id="loginPanel">
+    <div id="loginError" class="alert alert--error" style="display:none"></div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="you@finance.dev" />
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" />
+    </div>
+
+    <button class="btn btn--primary btn--full" id="loginBtn">Sign In</button>
+  </div>
+
+  <!-- REGISTER -->
+  <div class="form-panel" id="registerPanel">
+    <div id="registerError" class="alert alert--error" style="display:none"></div>
+    <div id="registerSuccess" class="alert alert--success" style="display:none"></div>
+
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="regName" placeholder="Your name" />
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="regEmail" placeholder="you@example.com" />
+    </div>
+
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="regPassword" placeholder="Min. 6 characters" />
+    </div>
+
+    <button class="btn btn--primary btn--full" id="registerBtn">Create Account</button>
+  </div>
+
+</div>
 
     </div>
   </div>

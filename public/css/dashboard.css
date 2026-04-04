@@ -64,6 +64,47 @@ body:not(.login-page) {
   min-height: 100vh;
 }
 
+/* Slider container */
+.form-slider {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  height: 260px;
+}
+
+/* Panels */
+.form-panel {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.35s ease, opacity 0.25s ease;
+}
+
+/* Default positions */
+#loginPanel {
+  transform: translateX(0%);
+}
+
+#registerPanel {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* Active states */
+.form-slider.show-register #loginPanel {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.form-slider.show-register #registerPanel {
+  transform: translateX(0%);
+  opacity: 1;
+}
+
 /* ── Sidebar ────────────────────────────────────────────────────── */
 .sidebar {
   background: var(--bg-2);
