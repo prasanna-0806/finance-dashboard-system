@@ -21,6 +21,8 @@ A backend system for a finance dashboard with role-based access control, financi
 | analyst@finance.dev | Analyst@1234 | Analyst |
 | viewer@finance.dev | Viewer@1234 | Viewer |
 
+> New accounts can be registered via the **Register** tab on the login page or via `POST /api/auth/register`. New users are assigned the `viewer` role by default.
+ 
 ---
 
 ## Tech Stack
