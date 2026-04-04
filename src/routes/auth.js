@@ -27,7 +27,7 @@ const { validate } = require('../validators/validate');
  *               name:     { type: string, example: Alice }
  *               email:    { type: string, example: alice@example.com }
  *               password: { type: string, example: secret123 }
- *               role:     { type: string, enum: [admin, analyst, viewer], default: viewer }
+ *               role: { type: string, enum: [admin, analyst, viewer], default: viewer, description: 'Optional. Defaults to viewer. For testing purposes, you may specify analyst or admin.' }
  *     responses:
  *       201:
  *         description: User created
