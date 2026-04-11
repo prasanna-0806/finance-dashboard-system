@@ -311,7 +311,7 @@ All inputs are validated using `express-validator` before reaching any service l
 - `401` — missing/invalid/expired token
 - `403` — insufficient role or deactivated account
 - `404` — resource not found
-- `409` — conflict (e.g. email already in use)
+- `409` — conflict (e.g. email is already in use)
 - `422` — validation failed (returns array of field-level error messages)
 - `429` — rate limit exceeded (100 requests per 15 minutes per IP)
 - `500` — internal server error (details logged server-side only)
